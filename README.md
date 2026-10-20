@@ -1,11 +1,28 @@
 # 🏎️ APEX VELOCITY 3D — Realistic Grand Prix Racing
 
+[![Live Website](https://img.shields.io/badge/Live_Game-apex--racing--3d.vercel.app-00dfa2?style=for-the-badge&logo=vercel)](https://apex-racing-3d.vercel.app)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-apex--velocity--racing-181717?style=for-the-badge&logo=github)](https://github.com/gpreethish08/apex-velocity-racing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
 [![Three.js](https://img.shields.io/badge/Three.js-r186-black?logo=three.js)](https://threejs.org/)
-[![Vite](https://img.shields.io/badge/Vite-Bundler-646CFF?logo=vite)](https://vitejs.dev/)
-[![WebGL](https://img.shields.io/badge/WebGL-2.0-blue)](https://khronos.org/webgl/)
 
-> A next-generation 3D arcade-realistic car racing simulator built with Three.js, WebGL, and Web Audio API. Features physically based materials (PBR clearcoat paint), dynamic suspension physics (body roll & pitch), 6-speed transmission, tire smoke, dynamic skid marks, realistic AI opponents, and multi-camera perspectives.
+🎮 **Play Live Now:** **[https://apex-racing-3d.vercel.app](https://apex-racing-3d.vercel.app)**
+
+---
+
+## 🌟 What's New in this Release
+
+* **🏛️ 3D Sci-Fi Showroom Garage**: Interactive rotating turntable stage, neon circular floor rings, runway catwalk, overhead light fixtures, and real-time 360-degree car preview.
+* **🚗 8 High-Performance Supercars & Inventory**:
+  1. **HIDEO** (Toyota Supra MK4 - Alpine White, GT 924, Free Starter)
+  2. **GR35** (Nissan GT-R Nismo - White/Carbon, GT 917, 50 🪙)
+  3. **DRIVEZA** (Pagani Huayra - Sapphire Blue, GT 922, 75 🪙)
+  4. **OMEN DRS** (Dodge Challenger Hellcat - Flame Orange, GT 967, 90 🪙)
+  5. **DRIVON** (Bugatti Chiron W16 - Obsidian Black, GT 922, 150 🪙)
+  6. **F90** (Porsche 918 Spyder - Liquid Silver, GT 938, 180 🪙)
+  7. **LM900** (Ferrari SF90 Stradale - Racing Red, GT 943, 220 🪙)
+  8. **SSX** (Acura NSX - Ruby Red, GT 933, 250 🪙)
+* **🪙 3D Gold Coins on the Track**: Collect glowing, spinning gold coins placed all along the circuit. Each coin grants +1 🪙 with audio chime, particle sparkle FX, and floating HUD popup.
+* **💰 Economy & Car Purchasing**: Persistent coin balance saved in `localStorage`. Earn coins during races and unlock new cars directly in the Showroom or Inventory!
 
 ---
 
