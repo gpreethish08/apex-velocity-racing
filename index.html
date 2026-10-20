@@ -739,8 +739,15 @@
     .hud-top-bar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
+      width: 100%;
+    }
+
+    .hud-left-meta, .hud-right-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -750,7 +757,7 @@
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 1);
       border-radius: 12px;
-      padding: 8px 18px;
+      padding: 7px 16px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
@@ -758,7 +765,7 @@
     }
 
     .hud-label {
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 2px;
       color: #475569;
       font-weight: 800;
@@ -767,7 +774,7 @@
 
     .pos-value, .lap-value {
       font-family: 'Orbitron', sans-serif;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       color: #0f172a;
     }
@@ -775,12 +782,12 @@
     .pos-total {
       font-size: 14px;
       color: #64748b;
-      margin-left: 3px;
+      margin-left: 2px;
     }
 
     .hud-coins-val {
       font-family: 'Orbitron', sans-serif;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       color: #b45309;
       display: flex;
@@ -799,8 +806,170 @@
       50% { transform: rotateY(180deg); }
     }
 
+    /* Racing Master Top Center Digital Instrument Cluster */
+    .hud-center-cluster {
+      display: flex;
+      justify-content: center;
+      flex: 1;
+      max-width: 440px;
+      margin: 0 10px;
+    }
+
+    .cluster-shell {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+      color: #ffffff;
+      width: 100%;
+    }
+
+    .cluster-gear-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+      padding-right: 14px;
+    }
+
+    .cluster-sublabel {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #94a3b8;
+      font-weight: 800;
+    }
+
+    .cluster-gear {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      color: #38bdf8;
+      line-height: 1;
+    }
+
+    .cluster-speed-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 90px;
+    }
+
+    .cluster-speed {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 0.95;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    }
+
+    .cluster-unit {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #94a3b8;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .cluster-meters {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .cluster-rpm-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .cluster-rpm-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 4px;
+      transition: width 0.05s linear;
+    }
+
+    .cluster-nitro-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cluster-nitro-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 4px;
+      box-shadow: 0 0 10px #38bdf8;
+      transition: width 0.08s linear;
+    }
+
+    .cluster-nitro-label {
+      position: absolute;
+      top: -12px;
+      right: 0;
+      font-size: 8px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1px;
+    }
+
+    .cluster-indicators {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .ind-pill {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #64748b;
+      letter-spacing: 1px;
+    }
+
+    .ind-pill.active {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border: 1px solid #10b981;
+    }
+
+    .ind-pill.ready-nos {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+    }
+
+    .ind-pill.active-nos {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 0 10px #38bdf8;
+      animation: pulseGlow 0.2s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from { filter: brightness(1.0); }
+      to { filter: brightness(1.6); }
+    }
+
     .timer-panel {
-      min-width: 155px;
+      min-width: 150px;
       align-items: flex-start;
     }
 
@@ -813,7 +982,7 @@
 
     .timer-value {
       font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       color: #0284c7;
     }
@@ -832,7 +1001,7 @@
       background: rgba(255, 255, 255, 0.92);
       border: 1px solid #cbd5e1;
       color: #0f172a;
-      padding: 7px 14px;
+      padding: 7px 13px;
       border-radius: 8px;
       font-family: 'Rajdhani', sans-serif;
       font-weight: 800;
@@ -891,27 +1060,31 @@
       100% { opacity: 0; transform: translate(-50%, -45px) scale(1.0); }
     }
 
-    /* Clean 3-2-1 Countdown (No dots, No box blocking the car) */
+    /* Clean 3-2-1 Countdown (Hides completely once race begins, no dots blocking car) */
     .countdown-overlay {
       position: absolute;
-      top: 30%;
+      top: 36%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 30;
       pointer-events: none;
     }
 
+    .countdown-overlay.hidden {
+      display: none !important;
+    }
+
     .countdown-number {
       font-family: 'Orbitron', sans-serif;
-      font-size: 92px;
+      font-size: 110px;
       font-weight: 900;
       letter-spacing: 4px;
-      text-shadow: 0 0 40px currentColor, 0 4px 18px rgba(0,0,0,0.8);
+      text-shadow: 0 0 50px currentColor, 0 4px 20px rgba(0,0,0,0.9);
       animation: countScaleIn 0.5s ease-out;
     }
 
     @keyframes countScaleIn {
-      0% { transform: scale(1.8); opacity: 0; }
+      0% { transform: scale(1.6); opacity: 0; }
       100% { transform: scale(1.0); opacity: 1; }
     }
 
@@ -929,14 +1102,15 @@
     }
 
     .minimap-wrapper {
-      background: rgba(255, 255, 255, 0.90);
+      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 1);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
       border-radius: 50%;
-      padding: 8px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-      width: 196px;
-      height: 196px;
+      padding: 6px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      width: 172px;
+      height: 172px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -946,7 +1120,7 @@
       border-radius: 50%;
     }
 
-    /* On-Screen Dedicated NITRO BOOST Button */
+    /* Desktop Nitro Boost Button */
     .hud-center-actions {
       display: flex;
       justify-content: center;
@@ -960,24 +1134,24 @@
       border: 2px solid #38bdf8;
       border-radius: 14px;
       color: #ffffff;
-      padding: 14px 32px;
+      padding: 12px 28px;
       font-family: 'Orbitron', sans-serif;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
-      box-shadow: 0 0 30px rgba(6, 182, 212, 0.7);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.7);
       transition: all 0.15s ease;
     }
 
     .hud-nitro-btn:hover, .hud-nitro-btn:active {
       background: linear-gradient(135deg, #06b6d4, #38bdf8);
-      transform: scale(1.06);
-      box-shadow: 0 0 45px rgba(6, 182, 212, 0.95);
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.95);
     }
 
     .nitro-btn-icon {
-      font-size: 28px;
+      font-size: 26px;
       filter: drop-shadow(0 0 8px #fef08a);
     }
 
@@ -989,7 +1163,7 @@
     }
 
     .nitro-btn-main {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 900;
       letter-spacing: 2px;
       line-height: 1.1;
@@ -1002,178 +1176,198 @@
       letter-spacing: 1.5px;
     }
 
-    /* Speedometer */
-    .speedo-cluster {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nitro-gauge-wrap {
-      width: 180px;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .nitro-fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
-      box-shadow: 0 0 12px #38bdf8;
-      transition: width 0.08s linear;
-    }
-
-    .nitro-pulsing {
-      background: linear-gradient(90deg, #38bdf8, #f0abfc) !important;
-      animation: nitroFlash 0.15s infinite alternate;
-    }
-
-    @keyframes nitroFlash {
-      0% { filter: brightness(1.0); }
-      100% { filter: brightness(1.6); }
-    }
-
-    .nitro-label {
-      position: absolute;
-      top: -16px;
-      right: 0;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: #0284c7;
-    }
-
-    .speedo-dial {
-      position: relative;
-      width: 190px;
-      height: 190px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 45%, rgba(241, 245, 249, 0.9) 100%);
-      backdrop-filter: blur(14px);
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 1);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .tacho-svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      transform: rotate(135deg);
-    }
-
-    .tacho-bg {
-      fill: none;
-      stroke: #e2e8f0;
-      stroke-width: 12;
-      stroke-dasharray: 386;
-      stroke-dashoffset: 0;
-      stroke-linecap: round;
-    }
-
-    .tacho-fg {
-      fill: none;
-      stroke: #0284c7;
-      stroke-width: 12;
-      stroke-dasharray: 515;
-      stroke-dashoffset: 386;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.05s linear, stroke 0.2s ease;
-    }
-
-    .speedo-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .gear-indicator {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: #7c3aed;
-      margin-bottom: -4px;
-    }
-
-    .speed-number {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 52px;
-      font-weight: 900;
-      line-height: 1;
-      color: #0f172a;
-    }
-
-    .speed-unit {
-      font-size: 13px;
-      letter-spacing: 2.5px;
-      color: #64748b;
-      font-weight: 800;
-      margin-top: 2px;
-    }
-
-    /* Touch Controls */
+    /* ========================================================= */
+    /* 4. RACING MASTER TRANSLUCENT TOUCH CONTROLS (Image 1 & 2) */
+    /* ========================================================= */
     .touch-controls-layer {
-      display: none;
+      display: flex;
       position: absolute;
-      bottom: 15px;
+      bottom: 22px;
       left: 0;
       width: 100%;
-      padding: 0 25px;
+      padding: 0 28px;
       justify-content: space-between;
+      align-items: flex-end;
       pointer-events: none;
       z-index: 15;
     }
 
-    @media (max-width: 900px), (pointer: coarse) {
-      .touch-controls-layer {
-        display: flex;
-      }
-    }
-
     .touch-left-cluster, .touch-right-cluster {
       display: flex;
-      gap: 12px;
+      align-items: flex-end;
+      gap: 16px;
       pointer-events: auto;
     }
 
-    .touch-btn {
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid #cbd5e1;
-      color: #0f172a;
+    /* Translucent Steering Double Chevrons 《 》 */
+    .touch-btn-steer {
+      width: 82px;
+      height: 82px;
+      border-radius: 26px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
       font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 36px;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
       cursor: pointer;
+      transition: background 0.1s ease, border-color 0.1s ease, transform 0.1s ease;
+      touch-action: none;
     }
 
-    .touch-btn:active {
-      transform: scale(0.92);
-      background: #7c3aed;
+    .touch-btn-steer:active {
+      background: rgba(56, 189, 248, 0.45);
+      border-color: #38bdf8;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.8);
+      transform: scale(0.96);
+    }
+
+    /* Translucent DRIFT Pedal Button */
+    .touch-btn-drift {
+      width: 86px;
+      height: 72px;
+      border-radius: 22px;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid rgba(245, 158, 11, 0.5);
+      color: #fef08a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      transition: all 0.1s ease;
+      touch-action: none;
+    }
+
+    .touch-btn-drift:active {
+      background: rgba(245, 158, 11, 0.5);
+      border-color: #f59e0b;
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.9);
+      transform: scale(0.95);
+    }
+
+    /* Translucent NITRO Boost Button */
+    .touch-btn-nitro {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.75) 0%, rgba(2, 132, 199, 0.55) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2.5px solid #38bdf8;
       color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.75);
+      cursor: pointer;
+      transition: all 0.1s ease;
+      touch-action: none;
     }
 
-    .touch-btn-gas { background: rgba(34, 197, 94, 0.9) !important; color: #ffffff !important; border-color: #22c55e !important; }
-    .touch-btn-brake { background: rgba(239, 68, 68, 0.9) !important; color: #ffffff !important; border-color: #ef4444 !important; }
-    .touch-btn-nitro { background: rgba(2, 132, 199, 0.9) !important; color: #ffffff !important; border-color: #0284c7 !important; }
+    .touch-btn-nitro:active {
+      transform: scale(1.08);
+      box-shadow: 0 0 45px rgba(56, 189, 248, 1.0);
+    }
+
+    .touch-btn-subicon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .touch-btn-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      margin-top: 3px;
+    }
+
+    /* Translucent Brake & Gas Pedals */
+    .touch-btn-pedal {
+      width: 68px;
+      height: 88px;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      transition: all 0.1s ease;
+      touch-action: none;
+    }
+
+    .touch-btn-brake {
+      border: 2px solid rgba(239, 68, 68, 0.6);
+      color: #fca5a5;
+    }
+
+    .touch-btn-brake:active {
+      background: rgba(239, 68, 68, 0.5);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.9);
+      transform: scale(0.95);
+    }
+
+    .touch-btn-gas {
+      border: 2px solid rgba(34, 197, 94, 0.6);
+      color: #86efac;
+    }
+
+    .touch-btn-gas:active {
+      background: rgba(34, 197, 94, 0.5);
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.9);
+      transform: scale(0.95);
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 800px) {
+      .hud-center-cluster {
+        order: 3;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 8px;
+      }
+      .cluster-speed {
+        font-size: 36px;
+      }
+      .touch-btn-steer {
+        width: 72px;
+        height: 72px;
+        font-size: 30px;
+      }
+      .touch-btn-drift, .touch-btn-pedal {
+        width: 62px;
+        height: 76px;
+      }
+      .touch-btn-nitro {
+        width: 74px;
+        height: 74px;
+      }
+      .minimap-wrapper {
+        width: 130px;
+        height: 130px;
+      }
+      #minimap-canvas {
+        width: 118px;
+        height: 118px;
+      }
+      .hud-center-actions {
+        display: none;
+      }
+    }
 
     /* Modals (Pause & Finish) */
     #menu-container {

@@ -89,7 +89,7 @@ export class Game {
       stencil: false
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.canvasContainer.appendChild(this.renderer.domElement);
 
@@ -180,27 +180,8 @@ export class Game {
     playerStart.y = 0;
     this.playerCar.physics.reset(playerStart, heading0);
 
-    // 2. AI Rival Cars (Ford Mustang, BMW M4, Ferrari F8)
-    const aiSpecs = [
-      { car: CARS_DATABASE[1], offset: 3.5, dist: 0.0 },   // Mustang GT
-      { car: CARS_DATABASE[2], offset: -3.5, dist: -6.0 },  // BMW M4
-      { car: CARS_DATABASE[3], offset: 3.2, dist: -12.0 }   // Ferrari F8
-    ];
-
+    // 2. Only One Car: Hero Lamborghini Gallardo LP570-5 (All rivals removed per user specification)
     this.aiCars = [];
-    aiSpecs.forEach(cfg => {
-      const initialProgress = ((cfg.dist / this.track.length) % 1.0 + 1.0) % 1.0;
-      const ai = new AICar(this.scene, this.track, {
-        name: cfg.car.name,
-        color: cfg.car.color,
-        rimColor: cfg.car.rimColor,
-        caliperColor: cfg.car.caliperColor,
-        lateralOffset: cfg.offset,
-        initialProgress: initialProgress,
-        maxSpeed: cfg.car.physics.topSpeedKmh
-      });
-      this.aiCars.push(ai);
-    });
   }
 
   enterGarageMode() {
@@ -252,16 +233,17 @@ export class Game {
   }
 
   startRaceCountdown() {
-    this.countdownStage = 0;
-    this.countdownTimer = 0.5;
+    this.countdownStage = 1;
+    this.countdownTimer = 0.75;
     this.isRaceActive = false;
     this.currentLap = 1;
     this.currentLapTime = 0;
     this.bestLapTime = Infinity;
     this.totalRaceTime = 0;
 
-    this.hud.showCountdown(0, 'READY');
-    this.track.setStartingLights(0);
+    // Only 3, 2, 1 appear on screen per user instructions
+    this.hud.showCountdown(1, '3');
+    this.sound.playBeep(false);
   }
 
   updateCountdown(delta) {
@@ -271,25 +253,21 @@ export class Game {
     if (this.countdownTimer <= 0) {
       this.countdownStage++;
 
-      if (this.countdownStage === 1) {
-        this.countdownTimer = 0.65;
-        this.hud.showCountdown(1, '3');
-        this.sound.playBeep(false);
-      } else if (this.countdownStage === 2) {
-        this.countdownTimer = 0.65;
+      if (this.countdownStage === 2) {
+        this.countdownTimer = 0.75;
         this.hud.showCountdown(2, '2');
         this.sound.playBeep(false);
       } else if (this.countdownStage === 3) {
-        this.countdownTimer = 0.65;
+        this.countdownTimer = 0.75;
         this.hud.showCountdown(3, '1');
         this.sound.playBeep(false);
       } else if (this.countdownStage === 4) {
-        this.countdownTimer = 0.5;
+        this.countdownTimer = 0.45;
         this.hud.showCountdown(4, 'GO!');
         this.sound.playBeep(true);
         this.isRaceActive = true;
       } else if (this.countdownStage > 4) {
-        // Hide countdown completely, never stays on screen!
+        // Once game starts, number hides completely from screen!
         this.hud.hideCountdown();
         this.countdownStage = -1;
       }
@@ -325,8 +303,9 @@ export class Game {
 
     bindTouch('touch-gas', () => { this.input.touchThrottle = 1.0; }, () => { this.input.touchThrottle = 0; });
     bindTouch('touch-brake', () => { this.input.touchBrake = 1.0; }, () => { this.input.touchBrake = 0; });
-    bindTouch('touch-left', () => { this.input.touchSteer = -1.0; }, () => { this.input.touchSteer = 0; });
-    bindTouch('touch-right', () => { this.input.touchSteer = 1.0; }, () => { this.input.touchSteer = 0; });
+    // Gentle steering sensitivity for left & right side touch buttons
+    bindTouch('touch-left', () => { this.input.touchSteer = -0.55; }, () => { this.input.touchSteer = 0; });
+    bindTouch('touch-right', () => { this.input.touchSteer = 0.55; }, () => { this.input.touchSteer = 0; });
     bindTouch('touch-handbrake', () => { this.input.touchHandbrake = true; }, () => { this.input.touchHandbrake = false; });
     bindTouch('touch-nitro', () => { this.input.touchNitro = true; }, () => { this.input.touchNitro = false; });
 

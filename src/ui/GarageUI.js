@@ -105,11 +105,11 @@ export class GarageUI {
           </div>
         </div>
 
-        <!-- Carousel Arrows (Left & Right) -->
-        <button id="btn-carousel-prev" class="carousel-nav-btn carousel-left" title="Previous Car">
+        <!-- Single Hero Car Showcase -->
+        <button id="btn-carousel-prev" class="carousel-nav-btn carousel-left" title="Previous Car" style="display: none;">
           <span class="double-chevron">❮❮</span>
         </button>
-        <button id="btn-carousel-next" class="carousel-nav-btn carousel-right" title="Next Car">
+        <button id="btn-carousel-next" class="carousel-nav-btn carousel-right" title="Next Car" style="display: none;">
           <span class="double-chevron">❯❯</span>
         </button>
 

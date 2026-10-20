@@ -14,6 +14,9 @@ export class TrackDecorations {
     this.buildGrandstands();
     this.buildBrakeMarkers();
     this.buildStreetLamps();
+    this.buildCornerChevrons();
+    this.buildRoadGuidanceArrows();
+    this.buildFlowerFields();
     this.buildFoliage();
     this.buildMountains();
     this.buildBillboards();
@@ -287,6 +290,180 @@ export class TrackDecorations {
       board.castShadow = true;
 
       this.scene.add(board);
+    });
+  }
+
+  buildCornerChevrons() {
+    // High-visibility yellow & black chevron corner warning signs (<<< / >>>) matching Racing Master
+    const chevronCanvas = document.createElement('canvas');
+    chevronCanvas.width = 256;
+    chevronCanvas.height = 128;
+    const ctx = chevronCanvas.getContext('2d');
+    
+    // Bright fluorescent yellow background
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(0, 0, 256, 128);
+
+    // Bold black chevrons
+    ctx.fillStyle = '#111827';
+    for (let c = 0; c < 3; c++) {
+      const offsetX = 35 + c * 75;
+      ctx.beginPath();
+      ctx.moveTo(offsetX + 35, 15);
+      ctx.lineTo(offsetX, 64);
+      ctx.lineTo(offsetX + 35, 113);
+      ctx.lineTo(offsetX + 55, 113);
+      ctx.lineTo(offsetX + 20, 64);
+      ctx.lineTo(offsetX + 55, 15);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    const tex = new THREE.CanvasTexture(chevronCanvas);
+    const signGeo = new THREE.BoxGeometry(4.5, 1.8, 0.15);
+    const signMat = new THREE.MeshStandardMaterial({
+      map: tex,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+
+    const postGeo = new THREE.CylinderGeometry(0.08, 0.08, 2.5, 8);
+    const postMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 });
+
+    // Key turns along the circuit where chevrons guide high-speed corners
+    const cornerSegments = [
+      { start: 35, count: 8, side: -1 },
+      { start: 120, count: 10, side: -1 },
+      { start: 195, count: 8, side: 1 },
+      { start: 300, count: 8, side: -1 }
+    ];
+
+    cornerSegments.forEach(seg => {
+      for (let s = 0; s < seg.count; s++) {
+        const ptIdx = (seg.start + s * 4) % this.track.samples;
+        const pt = this.track.points[ptIdx];
+        const norm = this.track.normals[ptIdx];
+        const tang = this.track.tangents[ptIdx];
+
+        const signGroup = new THREE.Group();
+
+        const signMesh = new THREE.Mesh(signGeo, signMat);
+        signMesh.position.y = 1.6;
+        signMesh.castShadow = true;
+        signGroup.add(signMesh);
+
+        const post1 = new THREE.Mesh(postGeo, postMat);
+        post1.position.set(-1.6, 0.8, 0);
+        signGroup.add(post1);
+
+        const post2 = new THREE.Mesh(postGeo, postMat);
+        post2.position.set(1.6, 0.8, 0);
+        signGroup.add(post2);
+
+        // Position on outer barrier fence
+        signGroup.position.copy(pt).addScaledVector(norm, seg.side * (this.track.trackWidth * 0.5 + 2.8));
+        signGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tang);
+        if (seg.side === 1) signGroup.rotateY(Math.PI);
+
+        this.scene.add(signGroup);
+      }
+    });
+  }
+
+  buildRoadGuidanceArrows() {
+    // Painted yellow curved apex guidance arrows directly on asphalt (from Racing Master Image 1)
+    const arrowCanvas = document.createElement('canvas');
+    arrowCanvas.width = 128;
+    arrowCanvas.height = 256;
+    const actx = arrowCanvas.getContext('2d');
+
+    actx.fillStyle = 'rgba(0,0,0,0)';
+    actx.clearRect(0, 0, 128, 256);
+
+    // Luminous racing yellow arrow with soft border
+    actx.fillStyle = '#facc15';
+    actx.beginPath();
+    actx.moveTo(64, 20);
+    actx.lineTo(115, 120);
+    actx.lineTo(82, 120);
+    actx.lineTo(82, 235);
+    actx.lineTo(46, 235);
+    actx.lineTo(46, 120);
+    actx.lineTo(13, 120);
+    actx.closePath();
+    actx.fill();
+
+    const arrowTex = new THREE.CanvasTexture(arrowCanvas);
+    const arrowGeo = new THREE.PlaneGeometry(2.4, 4.8);
+    arrowGeo.rotateX(-Math.PI * 0.5);
+
+    const arrowMat = new THREE.MeshBasicMaterial({
+      map: arrowTex,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false
+    });
+
+    const turnIndices = [28, 32, 36, 112, 116, 120, 188, 192, 196, 292, 296, 300];
+    turnIndices.forEach(idx => {
+      const pt = this.track.points[idx % this.track.samples];
+      const norm = this.track.normals[idx % this.track.samples];
+      const tang = this.track.tangents[idx % this.track.samples];
+
+      const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+      // Place right on road surface along racing line
+      arrow.position.copy(pt).addScaledVector(norm, 1.5);
+      arrow.position.y += 0.035;
+      arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tang);
+
+      this.scene.add(arrow);
+    });
+  }
+
+  buildFlowerFields() {
+    // Vibrant wild flower fields along the grass verge (from Racing Master Image 1)
+    const flowerCount = 350;
+    const flowerGeo = new THREE.DodecahedronGeometry(0.3, 0);
+
+    const flowerColors = [0xef4444, 0xfacc15, 0xffffff, 0xf43f5e, 0x8b5cf6];
+    const flowerMats = flowerColors.map(c => new THREE.MeshStandardMaterial({
+      color: c,
+      roughness: 0.7,
+      metalness: 0.1
+    }));
+
+    const instancedMeshes = flowerMats.map(mat => {
+      const mesh = new THREE.InstancedMesh(flowerGeo, mat, Math.floor(flowerCount / flowerMats.length));
+      mesh.castShadow = false;
+      mesh.receiveShadow = true;
+      return mesh;
+    });
+
+    const dummy = new THREE.Object3D();
+    const perMat = Math.floor(flowerCount / flowerMats.length);
+
+    instancedMeshes.forEach((mesh, mIdx) => {
+      for (let i = 0; i < perMat; i++) {
+        const ptIdx = Math.floor(Math.random() * this.track.samples);
+        const pt = this.track.points[ptIdx];
+        const norm = this.track.normals[ptIdx];
+        const side = Math.random() > 0.5 ? 1 : -1;
+        const dist = this.track.trackWidth * 0.5 + 4 + Math.random() * 18;
+
+        const px = pt.x + norm.x * side * dist + (Math.random() - 0.5) * 6;
+        const pz = pt.z + norm.z * side * dist + (Math.random() - 0.5) * 6;
+        const py = pt.y + 0.15;
+
+        dummy.position.set(px, py, pz);
+        const s = 0.6 + Math.random() * 0.7;
+        dummy.scale.set(s, s * 1.5, s);
+        dummy.rotation.set(Math.random() * 0.2, Math.random() * Math.PI, Math.random() * 0.2);
+        dummy.updateMatrix();
+
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      this.scene.add(mesh);
     });
   }
 }

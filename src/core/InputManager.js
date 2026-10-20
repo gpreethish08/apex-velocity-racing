@@ -111,13 +111,13 @@ export class InputManager {
     if (this.touchHandbrake) handbrakeKey = true;
     if (this.touchNitro) nitroKey = true;
 
-    // Smooth steering input for realistic feel (fast steer-in, rapid centering)
-    const steerSpeed = targetSteer === 0 ? 12.0 : 8.0;
+    // Smooth steering input for gentle, progressive control (less power / less aggressive)
+    const steerSpeed = targetSteer === 0 ? 10.0 : 5.5;
     this.steer += (targetSteer - this.steer) * Math.min(1.0, steerSpeed * delta);
     
     // Smooth throttle and brake
-    this.throttle += (targetThrottle - this.throttle) * Math.min(1.0, 15.0 * delta);
-    this.brake += (targetBrake - this.brake) * Math.min(1.0, 15.0 * delta);
+    this.throttle += (targetThrottle - this.throttle) * Math.min(1.0, 14.0 * delta);
+    this.brake += (targetBrake - this.brake) * Math.min(1.0, 14.0 * delta);
 
     this.handbrake = !!handbrakeKey;
     this.nitro = !!nitroKey;

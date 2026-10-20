@@ -482,60 +482,19 @@ export class Track {
     checkMesh.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), norm);
     checkMesh.rotateY(Math.PI * 0.5);
 
-    // LED Starting Lights cluster
-    const lightFrameGeo = new THREE.BoxGeometry(5.0, 1.0, 0.4);
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-    const lightFrame = new THREE.Mesh(lightFrameGeo, frameMat);
-    lightFrame.position.copy(p0);
-    lightFrame.position.y += 6.5;
-    lightFrame.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), norm);
-
+    // Clean gantry arch (no obstructive 5-dot starting lights blocking the car view on phone)
     this.startingLights = [];
-    const lightGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.15, 16);
-    lightGeo.rotateX(Math.PI * 0.5);
-
-    for (let i = -2; i <= 2; i++) {
-      const mat = new THREE.MeshStandardMaterial({
-        color: 0x220000,
-        emissive: 0x000000,
-        roughness: 0.2
-      });
-      const lightMesh = new THREE.Mesh(lightGeo, mat);
-      lightMesh.position.set(i * 0.9, 0, 0.22);
-      lightFrame.add(lightMesh);
-      this.startingLights.push(lightMesh);
-    }
 
     this.gantryGroup.add(leftPillar);
     this.gantryGroup.add(rightPillar);
     this.gantryGroup.add(beam);
     this.gantryGroup.add(checkMesh);
-    this.gantryGroup.add(lightFrame);
 
     this.scene.add(this.gantryGroup);
   }
 
   setStartingLights(stage) {
-    // stage: 0 = off, 1 = 1 red, 2 = 2 red, 3 = 3 red, 4 = 4 red, 5 = 5 red, 6 = all green (GO!)
-    this.startingLights.forEach((light, idx) => {
-      if (stage === 0) {
-        light.material.color.setHex(0x220000);
-        light.material.emissive.setHex(0x000000);
-      } else if (stage >= 1 && stage <= 5) {
-        if (idx < stage) {
-          light.material.color.setHex(0xff1111);
-          light.material.emissive.setHex(0xff0000);
-          light.material.emissiveIntensity = 2.5;
-        } else {
-          light.material.color.setHex(0x220000);
-          light.material.emissive.setHex(0x000000);
-        }
-      } else if (stage === 6) {
-        light.material.color.setHex(0x00ff44);
-        light.material.emissive.setHex(0x00ff22);
-        light.material.emissiveIntensity = 3.0;
-      }
-    });
+    // 5-dot gantry lights removed per user request: clean 3-2-1 countdown handled purely in 2D UI
   }
 
   /**

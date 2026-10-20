@@ -1,8 +1,12 @@
 /**
  * HUD.js
- * Modern, bright, high-visibility racing HUD.
- * Clean 3-2-1-GO countdown (no blocking dots), live coins counter,
- * Nitro meter, speedometer, minimap radar, and dedicated on-screen NITRO button!
+ * High-visibility Racing Master HUD overlay.
+ * Features:
+ * - Translucent curved steering chevrons 《 》 on bottom-left
+ * - Translucent DRIFT pedal, ⚡ NITRO boost button, and pedals on bottom-right
+ * - Center digital instrument cluster with Gear, KM/H, throttle/RPM bar, TCS/ABS indicators
+ * - Clean 3-2-1 countdown that hides immediately upon race start
+ * - Live Gold Coin pickup counter & Nitro gauge
  */
 export class HUD {
   constructor(container, track) {
@@ -20,35 +24,72 @@ export class HUD {
   setupElements() {
     this.container.innerHTML = `
       <div id="hud-overlay" class="hud-container">
-        <!-- Top Info Header (Bright, Crisp Frosted Glass Theme) -->
+        <!-- Top Info Header -->
         <div class="hud-top-bar">
-          <div class="hud-panel race-pos-panel">
-            <span class="hud-label">POSITION</span>
-            <div class="pos-value"><span id="hud-position">1</span><span class="pos-total">/ 4</span></div>
+          <!-- Top Left: Race Progress & Coins -->
+          <div class="hud-left-meta">
+            <div class="hud-panel race-pos-panel">
+              <span class="hud-label">POSITION</span>
+              <div class="pos-value"><span id="hud-position">1</span><span class="pos-total">st</span></div>
+            </div>
+
+            <div class="hud-panel lap-panel">
+              <span class="hud-label">LAP</span>
+              <div class="lap-value" id="hud-lap">1 <span class="pos-total">/ 3</span></div>
+            </div>
+
+            <div class="hud-panel coins-panel">
+              <span class="hud-label">GOLD COINS</span>
+              <div class="hud-coins-val"><span class="coin-spin">🪙</span> <span id="hud-coins-count">0</span></div>
+            </div>
           </div>
 
-          <div class="hud-panel lap-panel">
-            <span class="hud-label">LAP</span>
-            <div class="lap-value" id="hud-lap">1 <span class="pos-total">/ 3</span></div>
+          <!-- Top Center: Racing Master Digital Telemetry Cluster -->
+          <div class="hud-center-cluster">
+            <div class="cluster-shell">
+              <div class="cluster-gear-wrap">
+                <span class="cluster-sublabel">GEAR</span>
+                <span class="cluster-gear" id="hud-gear">1</span>
+              </div>
+
+              <div class="cluster-speed-wrap">
+                <span class="cluster-speed" id="hud-speed">0</span>
+                <span class="cluster-unit">KM/H</span>
+              </div>
+
+              <div class="cluster-meters">
+                <!-- Linear RPM / Throttle Bar -->
+                <div class="cluster-rpm-track">
+                  <div id="cluster-rpm-fill" class="cluster-rpm-fill"></div>
+                </div>
+                <!-- Nitro Bar -->
+                <div class="cluster-nitro-track">
+                  <div id="nitro-bar" class="cluster-nitro-fill"></div>
+                  <span class="cluster-nitro-label">⚡ NOS</span>
+                </div>
+                <!-- Active Assist Indicators -->
+                <div class="cluster-indicators">
+                  <span id="ind-abs" class="ind-pill active">ABS</span>
+                  <span id="ind-tcs" class="ind-pill active">TCS</span>
+                  <span id="ind-nos" class="ind-pill">NITRO</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Gold Coin Balance Pill in HUD -->
-          <div class="hud-panel coins-panel">
-            <span class="hud-label">GOLD COINS</span>
-            <div class="hud-coins-val"><span class="coin-spin">🪙</span> <span id="hud-coins-count">0</span></div>
-          </div>
+          <!-- Top Right: Lap Times & Utility Buttons -->
+          <div class="hud-right-meta">
+            <div class="hud-panel timer-panel">
+              <div class="timer-row"><span class="hud-label">LAP TIME</span> <span class="timer-value" id="hud-current-time">00:00.000</span></div>
+              <div class="timer-row best-row"><span class="hud-label">BEST</span> <span class="timer-value best" id="hud-best-time">--:--.---</span></div>
+            </div>
 
-          <div class="hud-panel timer-panel">
-            <div class="timer-row"><span class="hud-label">TIME</span> <span class="timer-value" id="hud-current-time">00:00.000</span></div>
-            <div class="timer-row best-row"><span class="hud-label">BEST</span> <span class="timer-value best" id="hud-best-time">--:--.---</span></div>
-          </div>
-
-          <!-- Utility quick controls -->
-          <div class="hud-panel quick-controls">
-            <button id="btn-camera" class="hud-btn" title="Toggle Camera (C)">🎥 <span id="cam-name">CHASE</span></button>
-            <button id="btn-tod" class="hud-btn" title="Day/Sunset/Night (V)">☀️ <span id="tod-name">DAY</span></button>
-            <button id="btn-sound" class="hud-btn" title="Toggle Audio">🔊</button>
-            <button id="btn-pause" class="hud-btn" title="Pause (ESC)">⏸️</button>
+            <div class="hud-panel quick-controls">
+              <button id="btn-camera" class="hud-btn" title="Toggle Camera (C)">🎥 <span id="cam-name">CHASE</span></button>
+              <button id="btn-tod" class="hud-btn" title="Day/Sunset/Night (V)">☀️ <span id="tod-name">DAY</span></button>
+              <button id="btn-sound" class="hud-btn" title="Toggle Audio">🔊</button>
+              <button id="btn-pause" class="hud-btn" title="Pause (ESC)">⏸️</button>
+            </div>
           </div>
         </div>
 
@@ -69,64 +110,53 @@ export class HUD {
           <div class="drift-multiplier" id="drift-mult">x 1.0</div>
         </div>
 
-        <!-- Clean 3-2-1 Countdown (No obstructive dots or bulky black boxes) -->
+        <!-- Clean 3-2-1 Countdown (Hides completely once race begins, no dots blocking car) -->
         <div id="countdown-overlay" class="countdown-overlay hidden">
           <div class="countdown-number" id="countdown-text">3</div>
         </div>
 
-        <!-- Bottom Layout: Minimap (Left), Nitro Button (Center), & Speedometer (Right) -->
+        <!-- Bottom Layout: Minimap Radar on Bottom Left -->
         <div class="hud-bottom-bar">
-          <!-- 2D Minimap Radar -->
           <div class="minimap-wrapper">
-            <canvas id="minimap-canvas" width="180" height="180"></canvas>
+            <canvas id="minimap-canvas" width="160" height="160"></canvas>
           </div>
 
-          <!-- On-Screen Dedicated NITRO BOOST Button (Desktop & Mobile) -->
+          <!-- Dedicated Desktop Nitro Boost Button (also active for mouse clickers) -->
           <div class="hud-center-actions">
             <button id="btn-hud-nitro" class="hud-nitro-btn">
               <span class="nitro-btn-icon">⚡</span>
               <div class="nitro-btn-col">
                 <span class="nitro-btn-main">NITRO BOOST</span>
-                <span class="nitro-btn-sub">PRESS OR HOLD SHIFT</span>
+                <span class="nitro-btn-sub">PRESS [SHIFT] OR TAP</span>
               </div>
             </button>
           </div>
-
-          <!-- Speedometer & Tachometer Cluster -->
-          <div class="speedo-cluster">
-            <!-- Nitro Meter -->
-            <div class="nitro-gauge-wrap">
-              <div class="nitro-fill" id="nitro-bar"></div>
-              <span class="nitro-label">NOS TANK</span>
-            </div>
-
-            <!-- Digital Speed & Gear -->
-            <div class="speedo-dial">
-              <svg class="tacho-svg" viewBox="0 0 200 200">
-                <circle cx="100" cy="100" r="82" class="tacho-bg" />
-                <circle cx="100" cy="100" r="82" class="tacho-fg" id="tacho-arc" />
-              </svg>
-
-              <div class="speedo-content">
-                <div class="gear-indicator" id="hud-gear">1</div>
-                <div class="speed-number" id="hud-speed">0</div>
-                <div class="speed-unit">KM/H</div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Mobile Touch Controls -->
+        <!-- Mobile & Tablet Translucent Touch Controls (Matching Racing Master) -->
         <div class="touch-controls-layer">
+          <!-- Left: Translucent Steering Chevrons -->
           <div class="touch-left-cluster">
-            <button id="touch-left" class="touch-btn">◀</button>
-            <button id="touch-right" class="touch-btn">▶</button>
+            <button id="touch-left" class="touch-btn touch-btn-steer" aria-label="Steer Left">《</button>
+            <button id="touch-right" class="touch-btn touch-btn-steer" aria-label="Steer Right">》</button>
           </div>
+
+          <!-- Right: Translucent DRIFT Pedal, NITRO button, & Gas/Brake -->
           <div class="touch-right-cluster">
-            <button id="touch-handbrake" class="touch-btn touch-btn-alt">DRIFT</button>
-            <button id="touch-nitro" class="touch-btn touch-btn-nitro">NOS</button>
-            <button id="touch-brake" class="touch-btn touch-btn-brake">BRAKE</button>
-            <button id="touch-gas" class="touch-btn touch-btn-gas">GAS</button>
+            <button id="touch-handbrake" class="touch-btn touch-btn-drift" aria-label="Drift Handbrake">
+              <span class="touch-btn-subicon">🛞</span>
+              <span class="touch-btn-label">DRIFT</span>
+            </button>
+            <button id="touch-nitro" class="touch-btn touch-btn-nitro" aria-label="Nitro Boost">
+              <span class="touch-btn-subicon">⚡</span>
+              <span class="touch-btn-label">NITRO</span>
+            </button>
+            <button id="touch-brake" class="touch-btn touch-btn-pedal touch-btn-brake" aria-label="Brake Pedal">
+              <span class="touch-btn-label">BRAKE</span>
+            </button>
+            <button id="touch-gas" class="touch-btn touch-btn-pedal touch-btn-gas" aria-label="Gas Accelerator">
+              <span class="touch-btn-label">GAS</span>
+            </button>
           </div>
         </div>
       </div>
@@ -147,7 +177,7 @@ export class HUD {
       if (p.z > maxZ) maxZ = p.z;
     });
 
-    const padding = 25;
+    const padding = 20;
     const w = this.minimapCanvas.width - padding * 2;
     const h = this.minimapCanvas.height - padding * 2;
 
@@ -184,31 +214,30 @@ export class HUD {
       }
     }
 
-    // 2. Tachometer Arc
-    const tachoArc = document.getElementById('tacho-arc');
-    if (tachoArc) {
-      const rpmPercent = Math.min(1.0, (physics.rpm - 800) / (8500 - 800));
-      const maxDash = 386;
-      const offset = maxDash - (rpmPercent * maxDash);
-      tachoArc.style.strokeDashoffset = offset;
-
+    // 2. RPM / Throttle Linear Gauge
+    const rpmFill = document.getElementById('cluster-rpm-fill');
+    if (rpmFill) {
+      const rpmPercent = Math.min(1.0, Math.max(0, (physics.rpm - 950) / (8500 - 950)));
+      rpmFill.style.width = `${rpmPercent * 100}%`;
       if (rpmPercent > 0.9) {
-        tachoArc.style.stroke = '#ef4444';
-      } else if (rpmPercent > 0.7) {
-        tachoArc.style.stroke = '#f59e0b';
+        rpmFill.style.background = 'linear-gradient(90deg, #facc15 0%, #ef4444 100%)';
       } else {
-        tachoArc.style.stroke = '#0284c7';
+        rpmFill.style.background = 'linear-gradient(90deg, #0284c7 0%, #38bdf8 100%)';
       }
     }
 
     // 3. Nitro Bar
     const nitroBar = document.getElementById('nitro-bar');
+    const indNos = document.getElementById('ind-nos');
     if (nitroBar) {
-      nitroBar.style.width = `${Math.max(0, Math.min(100, physics.nitroFuel))}%`;
+      const fuelPct = Math.max(0, Math.min(100, physics.nitroFuel));
+      nitroBar.style.width = `${fuelPct}%`;
       if (physics.isNitroActive) {
         nitroBar.classList.add('nitro-pulsing');
+        if (indNos) indNos.className = 'ind-pill active active-nos';
       } else {
         nitroBar.classList.remove('nitro-pulsing');
+        if (indNos) indNos.className = fuelPct > 20 ? 'ind-pill ready-nos' : 'ind-pill';
       }
     }
 
@@ -232,57 +261,64 @@ export class HUD {
 
     if (lapElem) lapElem.innerHTML = `${raceState.currentLap} <span class="pos-total">/ ${raceState.totalLaps}</span>`;
     if (timeElem) timeElem.innerText = this.formatTime(raceState.currentLapTime);
-    if (bestElem && raceState.bestLapTime > 0) bestElem.innerText = this.formatTime(raceState.bestLapTime);
-    if (posElem) posElem.innerText = raceState.position;
+    if (bestElem && raceState.bestLapTime > 0 && isFinite(raceState.bestLapTime)) {
+      bestElem.innerText = this.formatTime(raceState.bestLapTime);
+    }
+    if (posElem) posElem.innerText = raceState.position || 1;
 
     // Coins counter
     const coinsElem = document.getElementById('hud-coins-count');
     if (coinsElem && raceState.coins !== undefined) {
-      coinsElem.innerText = raceState.coins.toLocaleString();
+      coinsElem.innerText = raceState.coins;
     }
 
-    // 6. Draw Minimap Radar
+    // 6. 2D Minimap
     this.renderMinimap(playerCar, aiCars);
   }
 
   renderMinimap(playerCar, aiCars) {
     if (!this.minimapCtx || !this.cachedMinimapPoints.length) return;
-
     const ctx = this.minimapCtx;
-    ctx.clearRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
+    const w = this.minimapCanvas.width;
+    const h = this.minimapCanvas.height;
 
+    ctx.clearRect(0, 0, w, h);
+
+    // Track Path
     ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.lineWidth = 4;
-    ctx.strokeStyle = '#38bdf8';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    for (let i = 0; i < this.cachedMinimapPoints.length; i++) {
-      const p = this.cachedMinimapPoints[i];
-      if (i === 0) ctx.moveTo(p.x, p.y);
+    this.cachedMinimapPoints.forEach((p, idx) => {
+      if (idx === 0) ctx.moveTo(p.x, p.y);
       else ctx.lineTo(p.x, p.y);
-    }
+    });
     ctx.closePath();
     ctx.stroke();
 
+    // Start / Finish Checkered line indicator
     const startPt = this.cachedMinimapPoints[0];
     ctx.fillStyle = '#facc15';
     ctx.fillRect(startPt.x - 3, startPt.y - 3, 6, 6);
 
     const transform = this.minimapTransform;
 
-    aiCars.forEach(ai => {
-      const x = (ai.position.x - transform.minX) * transform.scale + transform.offsetX;
-      const y = (ai.position.z - transform.minZ) * transform.scale + transform.offsetZ;
+    // AI Cars (if any)
+    if (aiCars && aiCars.length) {
+      aiCars.forEach(ai => {
+        const x = (ai.position.x - transform.minX) * transform.scale + transform.offsetX;
+        const y = (ai.position.z - transform.minZ) * transform.scale + transform.offsetZ;
 
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#ef4444';
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 4;
-      ctx.fill();
-    });
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+      });
+    }
 
+    // Player Hero Car Indicator (Sharp triangle pointer)
     const pPos = playerCar.physics.position;
     const px = (pPos.x - transform.minX) * transform.scale + transform.offsetX;
     const py = (pPos.z - transform.minZ) * transform.scale + transform.offsetZ;
@@ -291,15 +327,15 @@ export class HUD {
     ctx.translate(px, py);
     ctx.rotate(-playerCar.physics.yaw);
 
-    ctx.shadowColor = '#8b5cf6';
+    ctx.shadowColor = '#df1020';
     ctx.shadowBlur = 8;
-    ctx.fillStyle = '#8b5cf6';
+    ctx.fillStyle = '#df1020';
 
     ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(5, 5);
+    ctx.moveTo(0, -7);
+    ctx.lineTo(6, 6);
     ctx.lineTo(0, 3);
-    ctx.lineTo(-5, 5);
+    ctx.lineTo(-6, 6);
     ctx.closePath();
     ctx.fill();
 
@@ -333,7 +369,10 @@ export class HUD {
 
   hideCountdown() {
     const overlay = document.getElementById('countdown-overlay');
-    if (overlay) overlay.classList.add('hidden');
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.style.display = 'none';
+    }
   }
 
   showCoinPickup(amount = 1) {
