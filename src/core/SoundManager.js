@@ -252,6 +252,27 @@ export class SoundManager {
     this.windFilter.frequency.setTargetAtTime(200 + speedKmh * 4, now, 0.1);
   }
 
+  playCoinSound() {
+    if (!this.isInitialized || !this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    
+    // High-pitched bright 2-step arpeggio (B5 -> E6)
+    [987.77, 1318.51].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+
+      gain.gain.setValueAtTime(0.3, now + idx * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.18);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now + idx * 0.07);
+      osc.stop(now + idx * 0.07 + 0.18);
+    });
+  }
+
   playGearShift() {
     if (!this.isInitialized || !this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;

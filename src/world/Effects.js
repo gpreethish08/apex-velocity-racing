@@ -280,6 +280,28 @@ export class EffectsManager {
     });
   }
 
+  emitCoinSparkles(coinPos) {
+    for (let i = 0; i < 12; i++) {
+      for (let j = 0; j < this.maxSparks; j++) {
+        if (!this.sparkData[j].active) {
+          const s = this.sparkData[j];
+          s.active = true;
+          s.pos.copy(coinPos);
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 4 + 2;
+          s.vel.set(
+            Math.cos(angle) * speed,
+            Math.random() * 5 + 3,
+            Math.sin(angle) * speed
+          );
+          s.life = 0;
+          s.maxLife = 0.45 + Math.random() * 0.25;
+          break;
+        }
+      }
+    }
+  }
+
   emitSparks(impactPos, impactNormal) {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < this.maxSparks; j++) {

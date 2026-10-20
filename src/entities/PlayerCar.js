@@ -187,6 +187,34 @@ export class PlayerCar {
     return names[this.cameraMode];
   }
 
+  setCarConfig(carConfig) {
+    if (this.mesh) {
+      this.scene.remove(this.mesh);
+    }
+
+    this.carData = CarModelBuilder.createCar({
+      color: carConfig.color,
+      accentColor: carConfig.accentColor,
+      rimColor: carConfig.rimColor,
+      caliperColor: carConfig.caliperColor,
+      bodyType: carConfig.bodyType
+    });
+
+    this.mesh = this.carData.group;
+    this.chassis = this.carData.chassis;
+    this.wheels = this.carData.wheels;
+    this.lights = this.carData.lights;
+    this.exhaustMeshes = this.carData.exhaustMeshes;
+
+    this.scene.add(this.mesh);
+
+    if (carConfig.physics) {
+      if (carConfig.physics.topSpeedKmh) this.physics.topSpeedKmh = carConfig.physics.topSpeedKmh;
+      if (carConfig.physics.acceleration) this.physics.acceleration = carConfig.physics.acceleration;
+      if (carConfig.physics.brakingForce) this.physics.brakingForce = carConfig.physics.brakingForce;
+    }
+  }
+
   setCarColor(hexColor) {
     this.carData.materials.body.color.setHex(hexColor);
     this.lights.underglow.color.setHex(hexColor);

@@ -31,6 +31,11 @@ export class HUD {
             <div class="lap-value" id="hud-lap">1 <span class="pos-total">/ 3</span></div>
           </div>
 
+          <div class="hud-panel coins-panel">
+            <span class="hud-label">COINS</span>
+            <div class="hud-coins-val"><span class="coin-spin">🪙</span> <span id="hud-coins-count">0</span></div>
+          </div>
+
           <div class="hud-panel timer-panel">
             <div class="timer-row"><span class="hud-label">TIME</span> <span class="timer-value" id="hud-current-time">00:00.000</span></div>
             <div class="timer-row best-row"><span class="hud-label">BEST</span> <span class="timer-value best" id="hud-best-time">--:--.---</span></div>
@@ -55,6 +60,11 @@ export class HUD {
         <!-- Wrong Way Warning -->
         <div id="wrong-way-banner" class="wrong-way-banner hidden">
           ⚠️ WRONG WAY! ⚠️
+        </div>
+
+        <!-- Floating Coin Pickup Popup -->
+        <div id="coin-pickup-popup" class="coin-pickup-popup hidden">
+          +1 🪙
         </div>
 
         <!-- Starting Countdown Lights Overlay -->
@@ -227,8 +237,24 @@ export class HUD {
     if (bestElem && raceState.bestLapTime > 0) bestElem.innerText = this.formatTime(raceState.bestLapTime);
     if (posElem) posElem.innerText = raceState.position;
 
+    // Coins counter
+    const coinsElem = document.getElementById('hud-coins-count');
+    if (coinsElem && raceState.coins !== undefined) {
+      coinsElem.innerText = raceState.coins.toLocaleString();
+    }
+
     // 6. Draw Minimap Radar
     this.renderMinimap(playerCar, aiCars);
+  }
+
+  showCoinPickup(amount = 1) {
+    const pop = document.getElementById('coin-pickup-popup');
+    if (!pop) return;
+    pop.innerText = `+${amount} 🪙`;
+    pop.classList.remove('hidden');
+    pop.classList.remove('pop-animate');
+    void pop.offsetWidth; // trigger reflow
+    pop.classList.add('pop-animate');
   }
 
   renderMinimap(playerCar, aiCars) {
