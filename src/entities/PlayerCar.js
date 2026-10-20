@@ -117,24 +117,24 @@ export class PlayerCar {
     let followSharpness = 12.0;
 
     switch (this.cameraMode) {
-      case 0: // Chase Far (Cinematic high angle)
+      case 0: // Chase (Dynamic Racing Master perspective)
         targetCamPos.copy(carPos)
-          .addScaledVector(forward, -7.5)
-          .add(new THREE.Vector3(0, 3.4, 0));
+          .addScaledVector(forward, -5.6)
+          .add(new THREE.Vector3(0, 2.2, 0));
         targetLookAt.copy(carPos)
-          .addScaledVector(forward, 6.0)
-          .add(new THREE.Vector3(0, 1.2, 0));
-        followSharpness = 7.5; // Smooth spring lag
+          .addScaledVector(forward, 7.0)
+          .add(new THREE.Vector3(0, 0.9, 0));
+        followSharpness = 12.0;
         break;
 
       case 1: // Chase Close (Low aggressive arcade)
         targetCamPos.copy(carPos)
-          .addScaledVector(forward, -4.8)
-          .add(new THREE.Vector3(0, 1.9, 0));
+          .addScaledVector(forward, -4.2)
+          .add(new THREE.Vector3(0, 1.6, 0));
         targetLookAt.copy(carPos)
-          .addScaledVector(forward, 5.0)
-          .add(new THREE.Vector3(0, 1.0, 0));
-        followSharpness = 14.0;
+          .addScaledVector(forward, 6.0)
+          .add(new THREE.Vector3(0, 0.8, 0));
+        followSharpness = 16.0;
         break;
 
       case 2: // Cockpit (First Person)
@@ -159,9 +159,9 @@ export class PlayerCar {
         break;
     }
 
-    // Dynamic FOV widening on Nitro boost (warp speed feel)
-    const targetFOV = this.physics.isNitroActive ? 75 : (58 + (this.physics.speedKmh / 350) * 10);
-    camera.fov += (targetFOV - camera.fov) * Math.min(1.0, 6.0 * delta);
+    // Dynamic FOV widening on speed and Nitro boost (Visceral Racing Master speed feel)
+    const targetFOV = this.physics.isNitroActive ? 88 : (64 + (this.physics.speedKmh / 350) * 18);
+    camera.fov += (targetFOV - camera.fov) * Math.min(1.0, 8.0 * delta);
     camera.updateProjectionMatrix();
 
     // Smooth camera lag interpolation

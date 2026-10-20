@@ -61,8 +61,11 @@ export class GarageUI {
           </div>
 
           <div class="specs-car-header">
-            <h2 id="specs-car-name" class="specs-car-title">HIDEO</h2>
-            <div id="specs-car-rating" class="specs-car-badge">GT 924</div>
+            <div>
+              <span id="specs-car-brand" class="specs-car-brand">Mercedes-Benz</span>
+              <h2 id="specs-car-name" class="specs-car-title">MERCEDES-BENZ AMG Z4</h2>
+            </div>
+            <div id="specs-car-rating" class="specs-car-badge">GT 940</div>
           </div>
           <p id="specs-car-desc" class="specs-car-desc">Legendary twin-turbo Japanese GT coupe.</p>
 
@@ -265,9 +268,11 @@ export class GarageUI {
     if (invCoinEl) invCoinEl.innerText = coins.toLocaleString();
 
     // Update Car Details
+    const brandEl = document.getElementById('specs-car-brand');
     const nameEl = document.getElementById('specs-car-name');
     const ratingEl = document.getElementById('specs-car-rating');
     const descEl = document.getElementById('specs-car-desc');
+    if (brandEl) brandEl.innerText = car.brand || 'OFFICIAL';
     if (nameEl) nameEl.innerText = car.name;
     if (ratingEl) ratingEl.innerText = car.rating;
     if (descEl) descEl.innerText = car.description;
@@ -377,7 +382,10 @@ export class GarageUI {
       const headerBar = document.createElement('div');
       headerBar.className = 'card-top-strip';
       headerBar.innerHTML = `
-        <span class="card-car-name">${car.name}</span>
+        <div>
+          <span class="card-brand-label">${car.brand}</span>
+          <span class="card-car-name">${car.name}</span>
+        </div>
         <span class="card-price-badge">${isOwned ? 'OWNED' : `${car.price} 🪙`}</span>
       `;
       card.appendChild(headerBar);

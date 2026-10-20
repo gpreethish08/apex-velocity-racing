@@ -2,27 +2,29 @@ import * as THREE from 'three';
 
 /**
  * CarModelBuilder.js
- * Generates high-fidelity, realistic 3D hypercars tailored to each car class:
- * Supra MK4, GT-R R35, Pagani Huayra, Dodge Challenger, Bugatti Chiron,
- * Porsche 918 Spyder, Ferrari SF90, and Acura NSX.
+ * Generates realistic 3D sports cars for real-world brands:
+ * Mercedes-Benz Z4 / AMG GT (Purple Starter), Ford Mustang GT,
+ * BMW M4 Competition, Ferrari F8 Tributo, Porsche 911 GT3 RS,
+ * and Lamborghini Aventador SVJ.
+ * Includes contact shadow plane to ensure cars are solidly planted on the road!
  */
 export class CarModelBuilder {
   static createCar(options = {}) {
     const {
-      color = 0xd90429,
-      accentColor = 0x111111,
-      rimColor = 0xc5a059,
-      caliperColor = 0xff1e00,
-      bodyType = 'phantom'
+      color = 0x8b5cf6,          // Purple default for Mercedes-Benz Z4
+      accentColor = 0x1f1f2e,
+      rimColor = 0xe2e8f0,
+      caliperColor = 0xfacc15,
+      bodyType = 'benz'
     } = options;
 
     const carGroup = new THREE.Group();
 
-    // 1. Automotive Materials
+    // 1. High-Fidelity Automotive Materials (Tuned so cars pop with vibrant color and never look black)
     const bodyPaintMat = new THREE.MeshPhysicalMaterial({
       color: color,
-      metalness: 0.88,
-      roughness: 0.16,
+      metalness: 0.52,
+      roughness: 0.18,
       clearcoat: 1.0,
       clearcoatRoughness: 0.04,
       reflectivity: 0.95
@@ -30,7 +32,7 @@ export class CarModelBuilder {
 
     const carbonFiberMat = new THREE.MeshStandardMaterial({
       color: accentColor || 0x18181b,
-      metalness: 0.45,
+      metalness: 0.4,
       roughness: 0.35
     });
 
@@ -44,21 +46,21 @@ export class CarModelBuilder {
     });
 
     const chromeMat = new THREE.MeshStandardMaterial({
-      color: 0xf5f5f5,
+      color: 0xf8fafc,
       metalness: 0.98,
-      roughness: 0.1
+      roughness: 0.08
     });
 
     const rubberMat = new THREE.MeshStandardMaterial({
       color: 0x1a1a1a,
-      roughness: 0.85,
+      roughness: 0.88,
       metalness: 0.05
     });
 
     const rimMat = new THREE.MeshStandardMaterial({
       color: rimColor,
       metalness: 0.9,
-      roughness: 0.2
+      roughness: 0.18
     });
 
     const brakeDiscMat = new THREE.MeshStandardMaterial({
@@ -76,14 +78,14 @@ export class CarModelBuilder {
     const headlightMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       emissive: 0xebf8ff,
-      emissiveIntensity: 2.8,
+      emissiveIntensity: 3.5,
       roughness: 0.1
     });
 
     const taillightMat = new THREE.MeshStandardMaterial({
-      color: 0x330000,
+      color: 0xff0022,
       emissive: 0xff0022,
-      emissiveIntensity: 2.2,
+      emissiveIntensity: 2.8,
       roughness: 0.2
     });
 
@@ -92,90 +94,142 @@ export class CarModelBuilder {
       roughness: 0.8
     });
 
-    // Body suspension container
+    // 2. Realistic Ground Contact Shadow (Plants the car firmly onto the road surface)
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = 128;
+    shadowCanvas.height = 256;
+    const sctx = shadowCanvas.getContext('2d');
+    const grad = sctx.createRadialGradient(64, 128, 10, 64, 128, 64);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+    grad.addColorStop(0.6, 'rgba(0, 0, 0, 0.55)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    sctx.fillStyle = grad;
+    sctx.fillRect(0, 0, 128, 256);
+
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowGeo = new THREE.PlaneGeometry(2.6, 5.0);
+    shadowGeo.rotateX(-Math.PI * 0.5);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: shadowTex,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false
+    });
+    const contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
+    contactShadow.position.y = 0.02; // Sits directly on tarmac
+    carGroup.add(contactShadow);
+
+    // 3. Body Chassis Container
     const chassis = new THREE.Group();
     carGroup.add(chassis);
 
-    // --- BASE MONOCOQUE ---
+    // Lower Main Body
     const lowerBodyGeo = new THREE.BoxGeometry(2.1, 0.44, 4.4);
     const lowerBody = new THREE.Mesh(lowerBodyGeo, bodyPaintMat);
-    lowerBody.position.y = 0.48;
+    lowerBody.position.y = 0.44;
     lowerBody.castShadow = true;
     lowerBody.receiveShadow = true;
     chassis.add(lowerBody);
 
-    // --- CAR-SPECIFIC STYLING ---
+    // Brand Specific Tailoring
     let hoodLen = 1.6;
     let hoodAngle = 0.08;
-    let cabinLen = 2.0;
-    let cabinWidth = 1.55;
+    let cabinWidth = 1.5;
 
-    // Tailored geometry per bodyType
-    if (bodyType === 'muscle') {
-      // Challenger stance: wider, square aggressive front
+    if (bodyType === 'benz') {
+      // Mercedes-Benz Panamericana grille with vertical chrome vanes & star badge
+      const grilleGeo = new THREE.BoxGeometry(1.4, 0.28, 0.1);
+      const grilleMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+      const grille = new THREE.Mesh(grilleGeo, grilleMat);
+      grille.position.set(0, 0.4, 2.22);
+      chassis.add(grille);
+
+      // Vertical Chrome Vanes
+      for (let v = -0.55; v <= 0.55; v += 0.15) {
+        const vaneGeo = new THREE.BoxGeometry(0.03, 0.24, 0.12);
+        const vane = new THREE.Mesh(vaneGeo, chromeMat);
+        vane.position.set(v, 0.4, 2.23);
+        chassis.add(vane);
+      }
+
+      // Center Mercedes Chrome Star
+      const starGeo = new THREE.TorusGeometry(0.12, 0.025, 8, 24);
+      const star = new THREE.Mesh(starGeo, chromeMat);
+      star.position.set(0, 0.4, 2.25);
+      chassis.add(star);
+    } else if (bodyType === 'mustang') {
+      // Ford Mustang Dual Hood Scoops & Racing Stripes
       hoodLen = 1.8;
-      hoodAngle = 0.03;
-      cabinWidth = 1.65;
+      hoodAngle = 0.04;
+      cabinWidth = 1.6;
 
-      // Dual hood scoops
       const scoopGeo = new THREE.BoxGeometry(0.35, 0.08, 0.6);
       const scoop1 = new THREE.Mesh(scoopGeo, carbonFiberMat);
-      scoop1.position.set(-0.35, 0.78, 1.4);
+      scoop1.position.set(-0.35, 0.72, 1.4);
       chassis.add(scoop1);
       const scoop2 = scoop1.clone();
       scoop2.position.x = 0.35;
       chassis.add(scoop2);
 
-      // Matte Black Racing Stripes on Hood and Roof
-      const stripeGeo = new THREE.PlaneGeometry(0.5, 3.8);
+      // Dual Black Racing Stripes
+      const stripeGeo = new THREE.PlaneGeometry(0.5, 4.0);
       stripeGeo.rotateX(-Math.PI * 0.5);
       const stripe = new THREE.Mesh(stripeGeo, carbonFiberMat);
-      stripe.position.set(0, 0.76, 0.2);
+      stripe.position.set(0, 0.74, 0.1);
       chassis.add(stripe);
-    } else if (bodyType === 'bugatti') {
-      // Bugatti Horseshoe front grille
-      const horseshoeGeo = new THREE.TorusGeometry(0.35, 0.08, 12, 24, Math.PI);
-      const horseshoe = new THREE.Mesh(horseshoeGeo, chromeMat);
-      horseshoe.position.set(0, 0.42, 2.24);
-      horseshoe.rotation.z = Math.PI;
-      chassis.add(horseshoe);
-
-      // C-line chrome accent on flanks
-      const clineGeo = new THREE.TorusGeometry(0.85, 0.06, 8, 20, Math.PI * 1.1);
-      const clineL = new THREE.Mesh(clineGeo, chromeMat);
-      clineL.position.set(-1.08, 0.75, -0.3);
-      clineL.rotation.y = -Math.PI * 0.5;
-      chassis.add(clineL);
-      const clineR = clineL.clone();
-      clineR.position.x = 1.08;
-      clineR.rotation.y = Math.PI * 0.5;
-      chassis.add(clineR);
-    } else if (bodyType === 'pagani') {
-      // Pagani teardrop canopy and aerodynamic aero strakes
-      cabinWidth = 1.35;
+    } else if (bodyType === 'bmw') {
+      // BMW Dual Kidney Grille
+      const kidneyGeo = new THREE.BoxGeometry(0.35, 0.28, 0.08);
+      const kidneyL = new THREE.Mesh(kidneyGeo, carbonFiberMat);
+      kidneyL.position.set(-0.24, 0.42, 2.22);
+      chassis.add(kidneyL);
+      const kidneyR = kidneyL.clone();
+      kidneyR.position.x = 0.24;
+      chassis.add(kidneyR);
+    } else if (bodyType === 'ferrari') {
+      // Ferrari S-Duct aerodynamic hood
       hoodAngle = 0.12;
+      const ductGeo = new THREE.BoxGeometry(0.6, 0.1, 0.8);
+      const duct = new THREE.Mesh(ductGeo, carbonFiberMat);
+      duct.position.set(0, 0.55, 1.3);
+      duct.rotation.x = -0.15;
+      chassis.add(duct);
+    } else if (bodyType === 'porsche') {
+      // Porsche 911 Swan-neck massive GT3 RS rear wing
+      const wingGeo = new THREE.BoxGeometry(2.35, 0.06, 0.55);
+      const wing = new THREE.Mesh(wingGeo, carbonFiberMat);
+      wing.position.set(0, 1.45, -2.15);
+      wing.castShadow = true;
+      chassis.add(wing);
 
-      // Quad central exhaust rosette
-      const quadExGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.35, 8);
-      quadExGeo.rotateX(Math.PI * 0.5);
-      [-0.1, 0.1].forEach(x => {
-        [-0.1, 0.1].forEach(y => {
-          const ex = new THREE.Mesh(quadExGeo, chromeMat);
-          ex.position.set(x, 0.65 + y, -2.25);
-          chassis.add(ex);
-        });
-      });
+      const swanGeo = new THREE.BoxGeometry(0.06, 0.65, 0.35);
+      const swanL = new THREE.Mesh(swanGeo, carbonFiberMat);
+      swanL.position.set(-0.6, 1.25, -2.05);
+      swanL.rotation.x = -0.25;
+      chassis.add(swanL);
+      const swanR = swanL.clone();
+      swanR.position.x = 0.6;
+      chassis.add(swanR);
+    } else if (bodyType === 'lamborghini') {
+      // Lamborghini Aventador sharp stealth fighter wedge
+      hoodAngle = 0.14;
+      cabinWidth = 1.4;
+      const wingGeo = new THREE.BoxGeometry(2.2, 0.06, 0.5);
+      const wing = new THREE.Mesh(wingGeo, carbonFiberMat);
+      wing.position.set(0, 1.38, -2.15);
+      wing.castShadow = true;
+      chassis.add(wing);
     }
 
     // Hood / Front Nose
-    const hoodGeo = new THREE.BoxGeometry(bodyType === 'muscle' ? 2.05 : 1.95, 0.32, hoodLen);
+    const hoodGeo = new THREE.BoxGeometry(1.95, 0.3, hoodLen);
     const hood = new THREE.Mesh(hoodGeo, bodyPaintMat);
-    hood.position.set(0, 0.58, 1.45);
+    hood.position.set(0, 0.54, 1.45);
     hood.rotation.x = hoodAngle;
     hood.castShadow = true;
     chassis.add(hood);
 
-    // Front Air Splitter
+    // Front Air Splitter (Carbon)
     const splitterGeo = new THREE.BoxGeometry(2.15, 0.06, 0.7);
     const splitter = new THREE.Mesh(splitterGeo, carbonFiberMat);
     splitter.position.set(0, 0.22, 2.25);
@@ -183,33 +237,32 @@ export class CarModelBuilder {
     chassis.add(splitter);
 
     // Cockpit Cabin
-    const cabinGeo = new THREE.BoxGeometry(cabinWidth, 0.62, cabinLen);
+    const cabinGeo = new THREE.BoxGeometry(cabinWidth, 0.58, 2.0);
     const cabin = new THREE.Mesh(cabinGeo, bodyPaintMat);
-    cabin.position.set(0, 0.95, -0.2);
+    cabin.position.set(0, 0.92, -0.2);
     cabin.castShadow = true;
     chassis.add(cabin);
 
     // Windshield
     const windshieldGeo = new THREE.PlaneGeometry(cabinWidth * 0.92, 0.85);
     const windshield = new THREE.Mesh(windshieldGeo, glassMat);
-    windshield.position.set(0, 1.05, 0.85);
+    windshield.position.set(0, 1.02, 0.85);
     windshield.rotation.x = -Math.PI * 0.32;
     chassis.add(windshield);
 
     // Rear Window
     const rearWindowGeo = new THREE.PlaneGeometry(cabinWidth * 0.88, 0.95);
     const rearWindow = new THREE.Mesh(rearWindowGeo, glassMat);
-    rearWindow.position.set(0, 1.02, -1.25);
+    rearWindow.position.set(0, 0.99, -1.25);
     rearWindow.rotation.x = Math.PI * 0.34;
     chassis.add(rearWindow);
 
     // Side Windows
-    const sideWinGeo = new THREE.PlaneGeometry(cabinLen * 0.85, 0.45);
+    const sideWinGeo = new THREE.PlaneGeometry(1.7, 0.42);
     const sideWinL = new THREE.Mesh(sideWinGeo, glassMat);
-    sideWinL.position.set(-cabinWidth * 0.5 - 0.01, 1.0, -0.2);
+    sideWinL.position.set(-cabinWidth * 0.5 - 0.01, 0.96, -0.2);
     sideWinL.rotation.y = -Math.PI * 0.5;
     chassis.add(sideWinL);
-
     const sideWinR = sideWinL.clone();
     sideWinR.position.x = cabinWidth * 0.5 + 0.01;
     sideWinR.rotation.y = Math.PI * 0.5;
@@ -218,54 +271,31 @@ export class CarModelBuilder {
     // Side Air Intakes
     const scoopGeo = new THREE.BoxGeometry(0.2, 0.35, 0.8);
     const scoopL = new THREE.Mesh(scoopGeo, carbonFiberMat);
-    scoopL.position.set(-1.05, 0.55, -0.7);
+    scoopL.position.set(-1.05, 0.52, -0.7);
     chassis.add(scoopL);
     const scoopR = scoopL.clone();
     scoopR.position.x = 1.05;
     chassis.add(scoopR);
 
     // Rear Haunches
-    const rearDeckGeo = new THREE.BoxGeometry(2.05, 0.42, 1.3);
+    const rearDeckGeo = new THREE.BoxGeometry(2.05, 0.4, 1.3);
     const rearDeck = new THREE.Mesh(rearDeckGeo, bodyPaintMat);
-    rearDeck.position.set(0, 0.65, -1.55);
+    rearDeck.position.set(0, 0.62, -1.55);
     rearDeck.castShadow = true;
     chassis.add(rearDeck);
 
-    // --- REAR WING / SPOILER ---
-    if (bodyType === 'supra') {
-      // Supra Hoop curved wing
-      const hoopWingGeo = new THREE.BoxGeometry(2.1, 0.08, 0.4);
-      const hoopWing = new THREE.Mesh(hoopWingGeo, bodyPaintMat);
-      hoopWing.position.set(0, 1.45, -2.15);
-      chassis.add(hoopWing);
-
-      const hoopLegGeo = new THREE.BoxGeometry(0.08, 0.5, 0.35);
-      const hoopLegL = new THREE.Mesh(hoopLegGeo, bodyPaintMat);
-      hoopLegL.position.set(-0.95, 1.2, -2.15);
-      chassis.add(hoopLegL);
-      const hoopLegR = hoopLegL.clone();
-      hoopLegR.position.x = 0.95;
-      chassis.add(hoopLegR);
-    } else {
-      // GT Wing
-      const wingGeo = new THREE.BoxGeometry(2.2, 0.06, 0.45);
+    // Default Rear Wing (for benz, mustang, bmw, ferrari)
+    if (bodyType !== 'porsche' && bodyType !== 'lamborghini') {
+      const wingGeo = new THREE.BoxGeometry(2.1, 0.06, 0.45);
       const wing = new THREE.Mesh(wingGeo, carbonFiberMat);
-      wing.position.set(0, 1.32, -2.15);
+      wing.position.set(0, 1.25, -2.15);
       wing.rotation.x = -0.06;
       wing.castShadow = true;
       chassis.add(wing);
 
-      const endPlateGeo = new THREE.BoxGeometry(0.04, 0.28, 0.5);
-      const endPlateL = new THREE.Mesh(endPlateGeo, carbonFiberMat);
-      endPlateL.position.set(-1.1, 1.32, -2.15);
-      chassis.add(endPlateL);
-      const endPlateR = endPlateL.clone();
-      endPlateR.position.x = 1.1;
-      chassis.add(endPlateR);
-
-      const pylonGeo = new THREE.BoxGeometry(0.05, 0.45, 0.25);
+      const pylonGeo = new THREE.BoxGeometry(0.05, 0.38, 0.22);
       const pylonL = new THREE.Mesh(pylonGeo, chromeMat);
-      pylonL.position.set(-0.55, 1.1, -2.05);
+      pylonL.position.set(-0.55, 1.05, -2.05);
       pylonL.rotation.x = -0.2;
       chassis.add(pylonL);
       const pylonR = pylonL.clone();
@@ -276,7 +306,7 @@ export class CarModelBuilder {
     // Rear Diffuser
     const diffuserGeo = new THREE.BoxGeometry(1.85, 0.2, 0.6);
     const diffuser = new THREE.Mesh(diffuserGeo, carbonFiberMat);
-    diffuser.position.set(0, 0.3, -2.15);
+    diffuser.position.set(0, 0.28, -2.15);
     diffuser.rotation.x = -0.15;
     chassis.add(diffuser);
 
@@ -288,7 +318,7 @@ export class CarModelBuilder {
 
     exhaustPositions.forEach(x => {
       const ex = new THREE.Mesh(exhaustGeo, chromeMat);
-      ex.position.set(x, 0.38, -2.25);
+      ex.position.set(x, 0.35, -2.25);
       chassis.add(ex);
       exhaustMeshes.push(ex);
     });
@@ -304,7 +334,7 @@ export class CarModelBuilder {
     housingL.position.set(-0.16, 0.05, 0);
     mirrorGroupL.add(stemL);
     mirrorGroupL.add(housingL);
-    mirrorGroupL.position.set(-0.85, 0.88, 0.65);
+    mirrorGroupL.position.set(-0.85, 0.85, 0.65);
     chassis.add(mirrorGroupL);
 
     const mirrorGroupR = new THREE.Group();
@@ -314,38 +344,24 @@ export class CarModelBuilder {
     housingR.position.set(0.16, 0.05, 0);
     mirrorGroupR.add(stemR);
     mirrorGroupR.add(housingR);
-    mirrorGroupR.position.set(0.85, 0.88, 0.65);
+    mirrorGroupR.position.set(0.85, 0.85, 0.65);
     chassis.add(mirrorGroupR);
 
-    // Interior Details
-    const steeringRimGeo = new THREE.TorusGeometry(0.18, 0.028, 8, 16);
-    const steeringWheel = new THREE.Mesh(steeringRimGeo, interiorMat);
-    steeringWheel.position.set(-0.35, 0.82, 0.25);
-    steeringWheel.rotation.x = Math.PI * 0.2;
-    chassis.add(steeringWheel);
-
-    const seatGeo = new THREE.BoxGeometry(0.48, 0.7, 0.45);
-    const seatL = new THREE.Mesh(seatGeo, interiorMat);
-    seatL.position.set(-0.35, 0.75, -0.2);
-    chassis.add(seatL);
-    const seatR = seatL.clone();
-    seatR.position.x = 0.35;
-    chassis.add(seatR);
-
-    // Lights
-    const hlGeo = new THREE.BoxGeometry(0.42, 0.08, 0.3);
+    // Headlights
+    const hlGeo = new THREE.BoxGeometry(0.42, 0.09, 0.3);
     const hlLeft = new THREE.Mesh(hlGeo, headlightMat);
-    hlLeft.position.set(-0.75, 0.58, 2.05);
+    hlLeft.position.set(-0.75, 0.54, 2.05);
     hlLeft.rotation.y = -0.15;
     chassis.add(hlLeft);
 
     const hlRight = new THREE.Mesh(hlGeo, headlightMat);
-    hlRight.position.set(0.75, 0.58, 2.05);
+    hlRight.position.set(0.75, 0.54, 2.05);
     hlRight.rotation.y = 0.15;
     chassis.add(hlRight);
 
+    // Forward Spotlights
     const spotL = new THREE.SpotLight(0xffffff, 4.0, 60, Math.PI * 0.25, 0.5, 1.2);
-    spotL.position.set(-0.75, 0.6, 2.2);
+    spotL.position.set(-0.75, 0.55, 2.2);
     const targetL = new THREE.Object3D();
     targetL.position.set(-0.75, 0, 30);
     carGroup.add(targetL);
@@ -353,23 +369,25 @@ export class CarModelBuilder {
     carGroup.add(spotL);
 
     const spotR = new THREE.SpotLight(0xffffff, 4.0, 60, Math.PI * 0.25, 0.5, 1.2);
-    spotR.position.set(0.75, 0.6, 2.2);
+    spotR.position.set(0.75, 0.55, 2.2);
     const targetR = new THREE.Object3D();
     targetR.position.set(0.75, 0, 30);
     carGroup.add(targetR);
     spotR.target = targetR;
     carGroup.add(spotR);
 
+    // Rear LED Light Bar
     const rearLightGeo = new THREE.BoxGeometry(1.82, 0.08, 0.15);
     const rearLight = new THREE.Mesh(rearLightGeo, taillightMat);
-    rearLight.position.set(0, 0.72, -2.2);
+    rearLight.position.set(0, 0.68, -2.2);
     chassis.add(rearLight);
 
+    // Underglow Neon Light
     const underglowLight = new THREE.PointLight(color, 2.5, 6.0, 1.8);
     underglowLight.position.set(0, 0.15, 0);
     carGroup.add(underglowLight);
 
-    // --- WHEEL ASSEMBLIES ---
+    // Wheel Assemblies (Precisely placed with wheels touching ground at y=0)
     const createWheel = (isFront, isLeft) => {
       const wheelGroup = new THREE.Group();
       const wheelRadius = 0.38;
@@ -421,7 +439,7 @@ export class CarModelBuilder {
     };
 
     const trackX = 0.98;
-    const wheelY = 0.38;
+    const wheelY = 0.38; // Bottom of wheel is at y = 0.0
     const wheelZFront = 1.35;
     const wheelZRear = -1.35;
 

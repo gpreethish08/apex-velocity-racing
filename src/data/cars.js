@@ -1,223 +1,180 @@
 /**
  * cars.js
- * Definitions and specifications for the 8 playable vehicles inspired by the
- * game inventory and garage design.
+ * Official real-world car brand lineup:
+ * 1. Mercedes-Benz (Purple - Free 1st Starter Car for all users!)
+ * 2. Ford Mustang GT
+ * 3. BMW M4 Competition
+ * 4. Ferrari F8 Tributo
+ * 5. Porsche 911 GT3 RS
+ * 6. Lamborghini Aventador SVJ
  */
 export const CARS_DATABASE = [
   {
-    id: 'hideo',
-    name: 'HIDEO',
-    fullName: 'HIDEO TWIN TURBO',
-    class: 'A',
-    rating: 'GT 924',
-    price: 0, // Free starter
-    color: 0xf3f4f6, // Pure Alpine White
-    accentColor: 0x111827,
-    rimColor: 0x9ca3af, // Silver Alloy
-    caliperColor: 0xef4444, // Red
-    bodyType: 'supra',
-    description: 'Iconic Japanese straight-six turbo legend. Smooth power delivery and razor-sharp balance.',
+    id: 'benz_z4',
+    name: 'MERCEDES-BENZ AMG Z4',
+    brand: 'Mercedes-Benz',
+    fullName: 'MERCEDES-BENZ AMG GT ROADSTER',
+    class: 'S',
+    rating: 'GT 940',
+    price: 0, // Free starter for all users!
+    color: 0x8b5cf6, // Vibrant Royal Purple
+    accentColor: 0x1f1f2e,
+    rimColor: 0xe2e8f0, // Polished Chrome / Silver
+    caliperColor: 0xfacc15, // AMG Gold
+    bodyType: 'benz',
+    description: 'Twin-turbo 4.0L V8 roadster in stunning Royal Purple. Perfect balance of German luxury and raw power.',
     specs: {
-      speed: 78,
-      grip: 75,
-      break: 72,
-      handling: 80
+      speed: 85,
+      grip: 88,
+      break: 84,
+      handling: 89
     },
     physics: {
-      topSpeedKmh: 310,
-      acceleration: 18.0,
-      brakingForce: 33.0,
-      gripFactor: 1.0,
+      topSpeedKmh: 320,
+      acceleration: 38.0,
+      brakingForce: 45.0,
+      gripFactor: 1.05,
       soundPitch: 1.0
     }
   },
   {
-    id: 'gr35',
-    name: 'GR35',
-    fullName: 'GR35 NISMO TRACK',
-    class: 'S',
-    rating: 'GT 917',
-    price: 50,
-    color: 0xffffff, // White with Red Accents
-    accentColor: 0xd90429,
-    rimColor: 0x18181b, // Satin Black
-    caliperColor: 0xfacc15, // Gold
-    bodyType: 'gtr',
-    description: 'All-wheel drive track weapon with twin-turbo V6 power and aggressive aerodynamic downforce.',
-    specs: {
-      speed: 84,
-      grip: 88,
-      break: 80,
-      handling: 84
-    },
-    physics: {
-      topSpeedKmh: 325,
-      acceleration: 20.0,
-      brakingForce: 34.0,
-      gripFactor: 1.08,
-      soundPitch: 1.05
-    }
-  },
-  {
-    id: 'driveza',
-    name: 'DRIVEZA',
-    fullName: 'DRIVEZA HYPER GT',
-    class: 'GT',
-    rating: 'GT 922',
-    price: 75,
-    color: 0x1d4ed8, // Royal Sapphire Blue
-    accentColor: 0x0f172a,
-    rimColor: 0xd4af37, // Metallic Gold
-    caliperColor: 0x10b981, // Cyan Green
-    bodyType: 'pagani',
-    description: 'Bespoke carbon-titanium hypercar with active quad airbrakes and screaming V12 melody.',
-    specs: {
-      speed: 90,
-      grip: 85,
-      break: 86,
-      handling: 88
-    },
-    physics: {
-      topSpeedKmh: 340,
-      acceleration: 21.5,
-      brakingForce: 35.5,
-      gripFactor: 1.10,
-      soundPitch: 1.18
-    }
-  },
-  {
-    id: 'omen_drs',
-    name: 'OMEN DRS',
-    fullName: 'OMEN DRS HELLHOUND',
-    class: 'B',
-    rating: 'GT 967',
-    price: 90,
-    color: 0xea580c, // Sunset Flame Orange
-    accentColor: 0x09090b,
-    rimColor: 0x27272a, // Dark Matte
+    id: 'mustang_gt',
+    name: 'FORD MUSTANG GT',
+    brand: 'Ford',
+    fullName: 'FORD MUSTANG 5.0 V8 GT',
+    class: 'A',
+    rating: 'GT 920',
+    price: 60,
+    color: 0x0284c7, // Grabber Blue with Black Stripes
+    accentColor: 0x0a0a0a,
+    rimColor: 0x27272a, // Satin Charcoal
     caliperColor: 0xdc2626, // Red
-    bodyType: 'muscle',
-    description: 'Supercharged 6.2L V8 muscle monster producing earth-shaking torque and effortless power slides.',
+    bodyType: 'mustang',
+    description: 'Iconic 5.0L Coyote V8 American muscle icon with roaring exhaust and aggressive rear-wheel drive.',
     specs: {
-      speed: 86,
-      grip: 70,
-      break: 75,
-      handling: 74
+      speed: 82,
+      grip: 78,
+      break: 80,
+      handling: 82
     },
     physics: {
-      topSpeedKmh: 320,
-      acceleration: 22.0,
-      brakingForce: 32.0,
-      gripFactor: 0.94,
-      soundPitch: 0.92
+      topSpeedKmh: 310,
+      acceleration: 36.0,
+      brakingForce: 42.0,
+      gripFactor: 0.98,
+      soundPitch: 0.95
     }
   },
   {
-    id: 'drivon',
-    name: 'DRIVON',
-    fullName: 'DRIVON NOIR W16',
-    class: 'GT',
-    rating: 'GT 922',
-    price: 150,
-    color: 0x111317, // Jet Obsidian Black
-    accentColor: 0x1f2937,
-    rimColor: 0x3b82f6, // Diamond Cut Blue Accents
-    caliperColor: 0x3b82f6, // Blue
-    bodyType: 'bugatti',
-    description: 'Quad-turbocharged 16-cylinder pinnacle of speed. Cruises effortlessly past 360 KM/H.',
-    specs: {
-      speed: 98,
-      grip: 89,
-      break: 92,
-      handling: 86
-    },
-    physics: {
-      topSpeedKmh: 365,
-      acceleration: 24.0,
-      brakingForce: 37.0,
-      gripFactor: 1.12,
-      soundPitch: 1.12
-    }
-  },
-  {
-    id: 'f90',
-    name: 'F90',
-    fullName: 'F90 SPYDER HYBRID',
+    id: 'bmw_m4',
+    name: 'BMW M4 COMPETITION',
+    brand: 'BMW',
+    fullName: 'BMW M4 COMPETITION TWIN-TURBO',
     class: 'S',
-    rating: 'GT 938',
-    price: 180,
-    color: 0xd1d5db, // Liquid Silver Metallic
-    accentColor: 0x374151,
-    rimColor: 0xf3f4f6, // Polished Silver
-    caliperColor: 0x84cc16, // Acid Green
-    bodyType: 'spyder',
-    description: 'Open-top hybrid prototype with top-exit exhausts and instant electric torque off the line.',
+    rating: 'GT 945',
+    price: 120,
+    color: 0x10b981, // Isle of Man Green
+    accentColor: 0x18181b,
+    rimColor: 0x0f172a, // Shadowline Black
+    caliperColor: 0x3b82f6, // M Sport Blue
+    bodyType: 'bmw',
+    description: 'Precision German engineered twin-turbo inline-6 weapon. Track-tuned suspension and laser agility.',
     specs: {
-      speed: 92,
-      grip: 94,
-      break: 90,
-      handling: 93
+      speed: 88,
+      grip: 92,
+      break: 88,
+      handling: 92
     },
     physics: {
-      topSpeedKmh: 345,
-      acceleration: 22.8,
-      brakingForce: 36.0,
-      gripFactor: 1.14,
-      soundPitch: 1.22
+      topSpeedKmh: 330,
+      acceleration: 42.0,
+      brakingForce: 48.0,
+      gripFactor: 1.10,
+      soundPitch: 1.10
     }
   },
   {
-    id: 'lm900',
-    name: 'LM900',
-    fullName: 'LM900 CORSA STRADALE',
+    id: 'ferrari_f8',
+    name: 'FERRARI F8 TRIBUTO',
+    brand: 'Ferrari',
+    fullName: 'FERRARI F8 TRIBUTO V8',
     class: 'GT',
-    rating: 'GT 943',
-    price: 220,
-    color: 0xd90429, // Italian Racing Red
-    accentColor: 0x18181b,
-    rimColor: 0x18181b, // Gloss Black
-    caliperColor: 0xfacc15, // Yellow
+    rating: 'GT 970',
+    price: 200,
+    color: 0xd90429, // Rosso Corsa Racing Red
+    accentColor: 0x111111,
+    rimColor: 0xd4af37, // Corse Gold
+    caliperColor: 0xfacc15, // Giallo Modena Yellow
     bodyType: 'ferrari',
-    description: 'V8 hybrid flagship with aerodynamic vortex generators, massive front downforce, and F1 tech.',
+    description: 'Italian mid-engine masterpiece with 710 HP twin-turbo V8 and F1-derived aerodynamic vortex ducts.',
     specs: {
-      speed: 96,
+      speed: 94,
       grip: 95,
-      break: 94,
+      break: 92,
       handling: 96
     },
     physics: {
-      topSpeedKmh: 355,
-      acceleration: 23.5,
-      brakingForce: 38.0,
-      gripFactor: 1.18,
+      topSpeedKmh: 350,
+      acceleration: 46.0,
+      brakingForce: 52.0,
+      gripFactor: 1.15,
       soundPitch: 1.25
     }
   },
   {
-    id: 'ssx',
-    name: 'SSX',
-    fullName: 'SSX TWIN TURBO SHARK',
-    class: 'S',
-    rating: 'GT 933',
-    price: 250,
-    color: 0xbe123c, // Deep Ruby Red
-    accentColor: 0x0f172a,
-    rimColor: 0x64748b, // Gunmetal Gray
-    caliperColor: 0xf97316, // Orange
-    bodyType: 'nsx',
-    description: 'Sharply creased mid-engine supercar engineered with torque vectoring AWD for extreme cornering.',
+    id: 'porsche_911',
+    name: 'PORSCHE 911 GT3 RS',
+    brand: 'Porsche',
+    fullName: 'PORSCHE 911 GT3 RS TRACK',
+    class: 'GT',
+    rating: 'GT 975',
+    price: 300,
+    color: 0xffffff, // Pure White with Shark Blue Decals
+    accentColor: 0x0284c7,
+    rimColor: 0xef4444, // Pyro Red Rims
+    caliperColor: 0xef4444, // Red
+    bodyType: 'porsche',
+    description: 'Naturally aspirated 9000 RPM track predator with active DRS rear wing and massive downforce.',
     specs: {
       speed: 93,
-      grip: 96,
-      break: 92,
-      handling: 95
+      grip: 98,
+      break: 96,
+      handling: 98
     },
     physics: {
-      topSpeedKmh: 348,
-      acceleration: 22.5,
-      brakingForce: 36.5,
-      gripFactor: 1.16,
-      soundPitch: 1.15
+      topSpeedKmh: 345,
+      acceleration: 45.0,
+      brakingForce: 54.0,
+      gripFactor: 1.20,
+      soundPitch: 1.30
+    }
+  },
+  {
+    id: 'lamborghini_svj',
+    name: 'LAMBORGHINI AVENTADOR SVJ',
+    brand: 'Lamborghini',
+    fullName: 'LAMBORGHINI AVENTADOR SVJ V12',
+    class: 'GT',
+    rating: 'GT 990',
+    price: 450,
+    color: 0xeab308, // Giallo Orion Pearl Yellow
+    accentColor: 0x18181b,
+    rimColor: 0x18181b, // Forged Leirion Black
+    caliperColor: 0x000000, // Black
+    bodyType: 'lamborghini',
+    description: 'V12 all-wheel-drive flagship hypercar. Screaming exhaust notes and ALA active aerodynamic vectoring.',
+    specs: {
+      speed: 98,
+      grip: 97,
+      break: 95,
+      handling: 97
+    },
+    physics: {
+      topSpeedKmh: 365,
+      acceleration: 50.0,
+      brakingForce: 55.0,
+      gripFactor: 1.22,
+      soundPitch: 1.35
     }
   }
 ];
@@ -232,7 +189,6 @@ export function getPlayerCoins() {
     const val = parseInt(saved, 10);
     return isNaN(val) ? 50 : val;
   }
-  // Default starting bonus: 50 coins so user has spending power right away!
   localStorage.setItem(WALLET_KEY, '50');
   return 50;
 }
@@ -246,11 +202,11 @@ export function getOwnedCarIds() {
     const saved = localStorage.getItem(OWNED_CARS_KEY);
     if (saved) {
       const arr = JSON.parse(saved);
-      if (Array.isArray(arr) && arr.includes('hideo')) return arr;
+      if (Array.isArray(arr) && arr.includes('benz_z4')) return arr;
     }
   } catch (e) {}
-  // Default: player owns the starter car 'hideo'
-  const def = ['hideo'];
+  // Default: player owns the Mercedes-Benz Z4
+  const def = ['benz_z4'];
   localStorage.setItem(OWNED_CARS_KEY, JSON.stringify(def));
   return def;
 }
@@ -264,7 +220,9 @@ export function addOwnedCarId(id) {
 }
 
 export function getSelectedCarId() {
-  return localStorage.getItem(SELECTED_CAR_KEY) || 'hideo';
+  const id = localStorage.getItem(SELECTED_CAR_KEY);
+  if (id && CARS_DATABASE.some(c => c.id === id)) return id;
+  return 'benz_z4'; // Default starting car: Mercedes-Benz Z4
 }
 
 export function setSelectedCarId(id) {

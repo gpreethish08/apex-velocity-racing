@@ -7,6 +7,7 @@ import { Track } from '../world/Track.js';
 import { TrackDecorations } from '../world/TrackDecorations.js';
 import { EffectsManager } from '../world/Effects.js';
 import { CoinManager } from '../world/CoinManager.js';
+import { NitroManager } from '../world/NitroManager.js';
 import { PlayerCar } from '../entities/PlayerCar.js';
 import { AICar } from '../entities/AICar.js';
 import { HUD } from '../ui/HUD.js';
@@ -23,7 +24,7 @@ import {
 /**
  * Game.js
  * Master game engine coordinating 3D Showroom Garage, Track racing,
- * Gold coin collection system, AI rivals, audio synthesis, and HUD telemetry.
+ * Gold coin collection, Nitro gas boosts, AI rivals, and HUD telemetry.
  */
 export class Game {
   constructor(canvasContainer, uiContainer) {
@@ -44,6 +45,7 @@ export class Game {
     this.decorations = null;
     this.effects = null;
     this.coins = null;
+    this.nitro = null;
     this.garage = null;
     this.garageUI = null;
     this.hud = null;
@@ -99,9 +101,10 @@ export class Game {
     this.decorations = new TrackDecorations(this.scene, this.track);
     this.effects = new EffectsManager(this.scene);
     this.coins = new CoinManager(this.scene, this.track);
+    this.nitro = new NitroManager(this.scene, this.track);
     this.garage = new GarageManager(this.scene);
 
-    // 4. Initial Selected Car Setup
+    // 4. Initial Selected Car Setup (Mercedes-Benz Z4 in Purple by default!)
     const selectedId = getSelectedCarId();
     this.activeCarConfig = CARS_DATABASE.find(c => c.id === selectedId) || CARS_DATABASE[0];
 
@@ -121,7 +124,7 @@ export class Game {
       },
       onCarPurchased: (car) => {
         this.sound.init();
-        this.sound.playLapComplete(); // celebratory chime
+        this.sound.playLapComplete();
       },
       onPlayRace: (car) => {
         this.activeCarConfig = car;
@@ -157,7 +160,6 @@ export class Game {
   }
 
   setupCars() {
-    // Starting grid layout
     const p0 = this.track.points[0];
     const norm0 = this.track.normals[0];
     const tang0 = this.track.tangents[0];
@@ -174,14 +176,15 @@ export class Game {
 
     const playerStart = p0.clone()
       .addScaledVector(tang0, -18.0)
-      .addScaledVector(norm0, -3.0);
+      .addScaledVector(norm0, -3.5);
+    playerStart.y = 0;
     this.playerCar.physics.reset(playerStart, heading0);
 
-    // 2. AI Rival Cars (distinct supercars from database)
+    // 2. AI Rival Cars (Ford Mustang, BMW M4, Ferrari F8)
     const aiSpecs = [
-      { car: CARS_DATABASE[1], offset: 3.2, dist: 0.0 },   // GR35
-      { car: CARS_DATABASE[2], offset: -3.2, dist: -6.0 },  // DRIVEZA
-      { car: CARS_DATABASE[4], offset: 3.0, dist: -12.0 }   // DRIVON
+      { car: CARS_DATABASE[1], offset: 3.5, dist: 0.0 },   // Mustang GT
+      { car: CARS_DATABASE[2], offset: -3.5, dist: -6.0 },  // BMW M4
+      { car: CARS_DATABASE[3], offset: 3.2, dist: -12.0 }   // Ferrari F8
     ];
 
     this.aiCars = [];
@@ -206,12 +209,10 @@ export class Game {
     this.isPaused = false;
     this.garage.active = true;
 
-    // Show garage UI, hide HUD
     this.garageUI.showGarage();
     const hudOverlay = document.getElementById('hud-overlay');
     if (hudOverlay) hudOverlay.style.display = 'none';
 
-    // Position camera in 3D showroom
     const camTrans = this.garage.getShowroomCameraTransform();
     this.camera.position.copy(camTrans.camPos);
     this.camera.lookAt(camTrans.targetPos);
@@ -225,7 +226,6 @@ export class Game {
     this.garage.active = false;
     this.garageUI.hideGarage();
 
-    // Show HUD
     const hudOverlay = document.getElementById('hud-overlay');
     if (hudOverlay) hudOverlay.style.display = 'flex';
 
@@ -239,26 +239,28 @@ export class Game {
     const heading0 = Math.atan2(tang0.x, tang0.z);
     const playerStart = p0.clone()
       .addScaledVector(tang0, -18.0)
-      .addScaledVector(norm0, -3.0);
+      .addScaledVector(norm0, -3.5);
+    playerStart.y = 0;
     this.playerCar.physics.reset(playerStart, heading0);
 
-    // Reset race coins & timer
+    // Reset race coins, nitro canisters & timer
     this.raceCoinsCollected = 0;
     this.coins.resetLapCoins();
+    this.nitro.resetLapNitro();
 
     this.startRaceCountdown();
   }
 
   startRaceCountdown() {
     this.countdownStage = 0;
-    this.countdownTimer = 0.8;
+    this.countdownTimer = 0.5;
     this.isRaceActive = false;
     this.currentLap = 1;
     this.currentLapTime = 0;
     this.bestLapTime = Infinity;
     this.totalRaceTime = 0;
 
-    this.hud.showCountdown(0, 'GET READY');
+    this.hud.showCountdown(0, 'READY');
     this.track.setStartingLights(0);
   }
 
@@ -269,20 +271,26 @@ export class Game {
     if (this.countdownTimer <= 0) {
       this.countdownStage++;
 
-      if (this.countdownStage >= 1 && this.countdownStage <= 5) {
-        this.countdownTimer = 0.75;
-        this.hud.showCountdown(this.countdownStage, `${this.countdownStage}`);
-        this.track.setStartingLights(this.countdownStage);
+      if (this.countdownStage === 1) {
+        this.countdownTimer = 0.65;
+        this.hud.showCountdown(1, '3');
         this.sound.playBeep(false);
-      } else if (this.countdownStage === 6) {
-        this.countdownTimer = 1.2;
-        this.hud.showCountdown(6, 'GO! GO! GO!');
-        this.track.setStartingLights(6);
+      } else if (this.countdownStage === 2) {
+        this.countdownTimer = 0.65;
+        this.hud.showCountdown(2, '2');
+        this.sound.playBeep(false);
+      } else if (this.countdownStage === 3) {
+        this.countdownTimer = 0.65;
+        this.hud.showCountdown(3, '1');
+        this.sound.playBeep(false);
+      } else if (this.countdownStage === 4) {
+        this.countdownTimer = 0.5;
+        this.hud.showCountdown(4, 'GO!');
         this.sound.playBeep(true);
         this.isRaceActive = true;
-      } else if (this.countdownStage > 6) {
-        this.hud.showCountdown(-1, '');
-        this.track.setStartingLights(0);
+      } else if (this.countdownStage > 4) {
+        // Hide countdown completely, never stays on screen!
+        this.hud.hideCountdown();
         this.countdownStage = -1;
       }
     }
@@ -305,7 +313,7 @@ export class Game {
       this.togglePause();
     });
 
-    // Touch Controls
+    // Touch & Mouse Button binding helper
     const bindTouch = (id, onDown, onUp) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -321,6 +329,9 @@ export class Game {
     bindTouch('touch-right', () => { this.input.touchSteer = 1.0; }, () => { this.input.touchSteer = 0; });
     bindTouch('touch-handbrake', () => { this.input.touchHandbrake = true; }, () => { this.input.touchHandbrake = false; });
     bindTouch('touch-nitro', () => { this.input.touchNitro = true; }, () => { this.input.touchNitro = false; });
+
+    // Dedicated On-Screen NITRO BOOST button
+    bindTouch('btn-hud-nitro', () => { this.input.touchNitro = true; }, () => { this.input.touchNitro = false; });
   }
 
   bindResize() {
@@ -393,20 +404,17 @@ export class Game {
     const rawDelta = this.clock.getDelta();
     const delta = Math.min(rawDelta, 0.05);
 
-    // Keyboard action triggers
     if (this.input.consumeCameraTrigger()) this.cycleCamera();
     if (this.input.consumeViewModeTrigger()) this.cycleTimeOfDay();
     if (this.input.consumePauseTrigger()) this.togglePause();
     if (this.input.consumeResetTrigger()) this.resetCarToTrack();
 
     if (this.gameState === 'GARAGE') {
-      // 3D Garage Showroom Mode
       this.garage.update(delta);
       const camTrans = this.garage.getShowroomCameraTransform();
       this.camera.position.copy(camTrans.camPos);
       this.camera.lookAt(camTrans.targetPos);
     } else if (this.gameState === 'RACING' && !this.isPaused) {
-      // Race Mode
       this.updateCountdown(delta);
 
       const effectiveInput = this.isRaceActive ? this.input : {
@@ -432,7 +440,6 @@ export class Game {
       // Update 3D Gold Coins on Track
       if (this.isRaceActive) {
         this.coins.update(delta, this.playerCar, (coinPos) => {
-          // Coin collected callback!
           this.raceCoinsCollected++;
           const currentTotal = getPlayerCoins();
           savePlayerCoins(currentTotal + 1);
@@ -440,6 +447,19 @@ export class Game {
           this.sound.playCoinSound();
           this.effects.emitCoinSparkles(coinPos);
           this.hud.showCoinPickup(1);
+        });
+
+        // Update 3D Nitro Gas Pickups on Track
+        this.nitro.update(delta, this.playerCar, (nitroPos) => {
+          this.playerCar.physics.nitroFuel = 100.0;
+          this.sound.playBeep(true);
+          this.hud.showNitroPickup();
+          this.effects.emitNitroFlames(
+            this.playerCar.exhaustPosL,
+            this.playerCar.exhaustPosR,
+            this.playerCar.physics.forward,
+            true
+          );
         });
       }
 
@@ -466,8 +486,8 @@ export class Game {
           } else {
             this.currentLap++;
             this.currentLapTime = 0;
-            // Respawn track coins for next lap
             this.coins.resetLapCoins();
+            this.nitro.resetLapNitro();
           }
         }
         this.lastPlayerProgress = playerProg;
@@ -492,7 +512,6 @@ export class Game {
       });
     }
 
-    // Render 3D Scene
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -500,8 +519,7 @@ export class Game {
     this.isRaceActive = false;
     this.gameState = 'FINISHED';
 
-    // Bonus completion reward based on position
-    const finishBonus = this.racePosition === 1 ? 25 : this.racePosition === 2 ? 15 : 10;
+    const finishBonus = this.racePosition === 1 ? 30 : this.racePosition === 2 ? 20 : 10;
     savePlayerCoins(getPlayerCoins() + finishBonus);
 
     this.menu.showFinish({

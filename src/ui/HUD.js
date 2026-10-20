@@ -1,7 +1,8 @@
 /**
  * HUD.js
- * High-performance racing HUD: tachometer, digital speedometer, gear,
- * nitro meter, drift points popup, real-time minimap radar, and race position standings.
+ * Modern, bright, high-visibility racing HUD.
+ * Clean 3-2-1-GO countdown (no blocking dots), live coins counter,
+ * Nitro meter, speedometer, minimap radar, and dedicated on-screen NITRO button!
  */
 export class HUD {
   constructor(container, track) {
@@ -19,7 +20,7 @@ export class HUD {
   setupElements() {
     this.container.innerHTML = `
       <div id="hud-overlay" class="hud-container">
-        <!-- Top Info Header -->
+        <!-- Top Info Header (Bright, Crisp Frosted Glass Theme) -->
         <div class="hud-top-bar">
           <div class="hud-panel race-pos-panel">
             <span class="hud-label">POSITION</span>
@@ -31,8 +32,9 @@ export class HUD {
             <div class="lap-value" id="hud-lap">1 <span class="pos-total">/ 3</span></div>
           </div>
 
+          <!-- Gold Coin Balance Pill in HUD -->
           <div class="hud-panel coins-panel">
-            <span class="hud-label">COINS</span>
+            <span class="hud-label">GOLD COINS</span>
             <div class="hud-coins-val"><span class="coin-spin">🪙</span> <span id="hud-coins-count">0</span></div>
           </div>
 
@@ -50,6 +52,16 @@ export class HUD {
           </div>
         </div>
 
+        <!-- Floating Coin Pickup Popup -->
+        <div id="coin-pickup-popup" class="coin-pickup-popup hidden">
+          +1 🪙
+        </div>
+
+        <!-- Floating Nitro Refill Popup -->
+        <div id="nitro-pickup-popup" class="nitro-pickup-popup hidden">
+          ⚡ 100% NITRO REFILLED!
+        </div>
+
         <!-- Drift Banner Overlay -->
         <div id="drift-banner" class="drift-banner hidden">
           <div class="drift-title">DRIFT</div>
@@ -57,35 +69,27 @@ export class HUD {
           <div class="drift-multiplier" id="drift-mult">x 1.0</div>
         </div>
 
-        <!-- Wrong Way Warning -->
-        <div id="wrong-way-banner" class="wrong-way-banner hidden">
-          ⚠️ WRONG WAY! ⚠️
-        </div>
-
-        <!-- Floating Coin Pickup Popup -->
-        <div id="coin-pickup-popup" class="coin-pickup-popup hidden">
-          +1 🪙
-        </div>
-
-        <!-- Starting Countdown Lights Overlay -->
+        <!-- Clean 3-2-1 Countdown (No obstructive dots or bulky black boxes) -->
         <div id="countdown-overlay" class="countdown-overlay hidden">
-          <div class="countdown-box">
-            <div class="countdown-lights">
-              <span class="start-light" id="sl-1"></span>
-              <span class="start-light" id="sl-2"></span>
-              <span class="start-light" id="sl-3"></span>
-              <span class="start-light" id="sl-4"></span>
-              <span class="start-light" id="sl-5"></span>
-            </div>
-            <div class="countdown-text" id="countdown-text">READY</div>
-          </div>
+          <div class="countdown-number" id="countdown-text">3</div>
         </div>
 
-        <!-- Bottom Layout: Minimap (Left) & Speedometer (Right) -->
+        <!-- Bottom Layout: Minimap (Left), Nitro Button (Center), & Speedometer (Right) -->
         <div class="hud-bottom-bar">
           <!-- 2D Minimap Radar -->
           <div class="minimap-wrapper">
             <canvas id="minimap-canvas" width="180" height="180"></canvas>
+          </div>
+
+          <!-- On-Screen Dedicated NITRO BOOST Button (Desktop & Mobile) -->
+          <div class="hud-center-actions">
+            <button id="btn-hud-nitro" class="hud-nitro-btn">
+              <span class="nitro-btn-icon">⚡</span>
+              <div class="nitro-btn-col">
+                <span class="nitro-btn-main">NITRO BOOST</span>
+                <span class="nitro-btn-sub">PRESS OR HOLD SHIFT</span>
+              </div>
+            </button>
           </div>
 
           <!-- Speedometer & Tachometer Cluster -->
@@ -93,15 +97,13 @@ export class HUD {
             <!-- Nitro Meter -->
             <div class="nitro-gauge-wrap">
               <div class="nitro-fill" id="nitro-bar"></div>
-              <span class="nitro-label">NITRO (SHIFT)</span>
+              <span class="nitro-label">NOS TANK</span>
             </div>
 
             <!-- Digital Speed & Gear -->
             <div class="speedo-dial">
               <svg class="tacho-svg" viewBox="0 0 200 200">
-                <!-- Background gauge arc -->
                 <circle cx="100" cy="100" r="82" class="tacho-bg" />
-                <!-- Dynamic RPM arc fill -->
                 <circle cx="100" cy="100" r="82" class="tacho-fg" id="tacho-arc" />
               </svg>
 
@@ -137,7 +139,6 @@ export class HUD {
   precomputeMinimap() {
     if (!this.track || !this.track.points.length) return;
 
-    // Calculate bounding box of the track
     let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
     this.track.points.forEach(p => {
       if (p.x < minX) minX = p.x;
@@ -160,7 +161,6 @@ export class HUD {
       offsetZ: padding + (h - spanZ * scale) * 0.5
     };
 
-    // Pre-transform all track points
     this.cachedMinimapPoints = this.track.points.map(p => ({
       x: (p.x - minX) * scale + this.minimapTransform.offsetX,
       y: (p.z - minZ) * scale + this.minimapTransform.offsetZ
@@ -188,18 +188,16 @@ export class HUD {
     const tachoArc = document.getElementById('tacho-arc');
     if (tachoArc) {
       const rpmPercent = Math.min(1.0, (physics.rpm - 800) / (8500 - 800));
-      // Arc circumference = 2 * PI * 82 ~ 515.22
-      // We only draw 270 degrees arc (~386 max length)
       const maxDash = 386;
       const offset = maxDash - (rpmPercent * maxDash);
       tachoArc.style.strokeDashoffset = offset;
 
       if (rpmPercent > 0.9) {
-        tachoArc.style.stroke = '#ef4444'; // Redline
+        tachoArc.style.stroke = '#ef4444';
       } else if (rpmPercent > 0.7) {
-        tachoArc.style.stroke = '#f59e0b'; // Amber
+        tachoArc.style.stroke = '#f59e0b';
       } else {
-        tachoArc.style.stroke = '#06b6d4'; // Cyan
+        tachoArc.style.stroke = '#0284c7';
       }
     }
 
@@ -247,26 +245,15 @@ export class HUD {
     this.renderMinimap(playerCar, aiCars);
   }
 
-  showCoinPickup(amount = 1) {
-    const pop = document.getElementById('coin-pickup-popup');
-    if (!pop) return;
-    pop.innerText = `+${amount} 🪙`;
-    pop.classList.remove('hidden');
-    pop.classList.remove('pop-animate');
-    void pop.offsetWidth; // trigger reflow
-    pop.classList.add('pop-animate');
-  }
-
   renderMinimap(playerCar, aiCars) {
     if (!this.minimapCtx || !this.cachedMinimapPoints.length) return;
 
     const ctx = this.minimapCtx;
     ctx.clearRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
 
-    // Draw track circuit path
     ctx.beginPath();
     ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+    ctx.strokeStyle = '#38bdf8';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -278,27 +265,24 @@ export class HUD {
     ctx.closePath();
     ctx.stroke();
 
-    // Start / Finish Line marker
     const startPt = this.cachedMinimapPoints[0];
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#facc15';
     ctx.fillRect(startPt.x - 3, startPt.y - 3, 6, 6);
 
     const transform = this.minimapTransform;
 
-    // Draw AI Rivals (colored dots)
     aiCars.forEach(ai => {
       const x = (ai.position.x - transform.minX) * transform.scale + transform.offsetX;
       const y = (ai.position.z - transform.minZ) * transform.scale + transform.offsetZ;
 
       ctx.beginPath();
       ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#f43f5e'; // Rose / Red
-      ctx.shadowColor = '#f43f5e';
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#ef4444';
       ctx.shadowBlur = 4;
       ctx.fill();
     });
 
-    // Draw Player (Neon Yellow dot with heading arrow)
     const pPos = playerCar.physics.position;
     const px = (pPos.x - transform.minX) * transform.scale + transform.offsetX;
     const py = (pPos.z - transform.minZ) * transform.scale + transform.offsetZ;
@@ -307,11 +291,10 @@ export class HUD {
     ctx.translate(px, py);
     ctx.rotate(-playerCar.physics.yaw);
 
-    ctx.shadowColor = '#facc15';
+    ctx.shadowColor = '#8b5cf6';
     ctx.shadowBlur = 8;
-    ctx.fillStyle = '#facc15';
+    ctx.fillStyle = '#8b5cf6';
 
-    // Triangle arrow pointing forward
     ctx.beginPath();
     ctx.moveTo(0, -6);
     ctx.lineTo(5, 5);
@@ -327,7 +310,7 @@ export class HUD {
   showCountdown(stage, countText) {
     const overlay = document.getElementById('countdown-overlay');
     const textElem = document.getElementById('countdown-text');
-    if (!overlay) return;
+    if (!overlay || !textElem) return;
 
     if (stage === -1) {
       overlay.classList.add('hidden');
@@ -335,19 +318,41 @@ export class HUD {
     }
 
     overlay.classList.remove('hidden');
-    if (textElem) textElem.innerText = countText;
+    textElem.innerText = countText;
 
-    for (let i = 1; i <= 5; i++) {
-      const light = document.getElementById(`sl-${i}`);
-      if (!light) continue;
-      if (stage === 6) {
-        light.className = 'start-light light-green';
-      } else if (i <= stage) {
-        light.className = 'start-light light-red';
-      } else {
-        light.className = 'start-light';
-      }
+    if (stage === 1) {
+      textElem.className = 'countdown-number count-red';
+    } else if (stage === 2) {
+      textElem.className = 'countdown-number count-amber';
+    } else if (stage === 3) {
+      textElem.className = 'countdown-number count-yellow';
+    } else if (stage === 4) {
+      textElem.className = 'countdown-number count-green';
     }
+  }
+
+  hideCountdown() {
+    const overlay = document.getElementById('countdown-overlay');
+    if (overlay) overlay.classList.add('hidden');
+  }
+
+  showCoinPickup(amount = 1) {
+    const pop = document.getElementById('coin-pickup-popup');
+    if (!pop) return;
+    pop.innerText = `+${amount} 🪙`;
+    pop.classList.remove('hidden');
+    pop.classList.remove('pop-animate');
+    void pop.offsetWidth;
+    pop.classList.add('pop-animate');
+  }
+
+  showNitroPickup() {
+    const pop = document.getElementById('nitro-pickup-popup');
+    if (!pop) return;
+    pop.classList.remove('hidden');
+    pop.classList.remove('pop-animate');
+    void pop.offsetWidth;
+    pop.classList.add('pop-animate');
   }
 
   formatTime(seconds) {

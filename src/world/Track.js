@@ -8,7 +8,7 @@ import * as THREE from 'three';
 export class Track {
   constructor(scene) {
     this.scene = scene;
-    this.trackWidth = 16.0;
+    this.trackWidth = 22.0; // Wide realistic Grand Prix track
     this.curve = null;
     this.samples = 400;
     this.length = 0;
@@ -85,8 +85,8 @@ export class Track {
 
   generateTrackGeometry() {
     const halfWidth = this.trackWidth * 0.5;
-    const kerbWidth = 1.4;
-    const runoffWidth = 7.0;
+    const kerbWidth = 2.0;
+    const runoffWidth = 12.0;
 
     // 1. Asphalt Road Geometry
     const roadPositions = [];
@@ -317,37 +317,38 @@ export class Track {
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    // Dark asphalt base
-    ctx.fillStyle = '#222326';
+    // Rich dark gray Grand Prix asphalt
+    ctx.fillStyle = '#26292e';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Subtle grain / aggregate
-    for (let i = 0; i < 15000; i++) {
-      const gray = Math.floor(25 + Math.random() * 25);
-      ctx.fillStyle = `rgb(${gray},${gray},${gray})`;
+    // Realistic aggregate gravel speckles
+    for (let i = 0; i < 22000; i++) {
+      const g = Math.floor(35 + Math.random() * 25);
+      ctx.fillStyle = `rgb(${g},${g},${g})`;
       ctx.fillRect(Math.random() * 512, Math.random() * 512, 1.5, 1.5);
     }
 
-    // Racing tire line groove (darker tracks where tires roll)
-    ctx.fillStyle = 'rgba(15, 15, 17, 0.45)';
-    ctx.fillRect(90, 0, 80, 512);
-    ctx.fillRect(342, 0, 80, 512);
+    // Racing tire groove rubber lines (where high-speed tires lay rubber)
+    ctx.fillStyle = 'rgba(12, 14, 18, 0.55)';
+    ctx.fillRect(100, 0, 95, 512);
+    ctx.fillRect(317, 0, 95, 512);
 
-    // Solid white edge lines
-    ctx.fillStyle = '#f0f0f0';
-    ctx.fillRect(15, 0, 10, 512);
-    ctx.fillRect(487, 0, 10, 512);
-
-    // Center dashed white line
+    // Solid white outer track boundaries
     ctx.fillStyle = '#ffffff';
-    for (let y = 0; y < 512; y += 40) {
-      ctx.fillRect(251, y, 10, 24);
+    ctx.fillRect(16, 0, 14, 512);
+    ctx.fillRect(482, 0, 14, 512);
+
+    // Center double yellow dashed lines (High-visibility motorsport style)
+    ctx.fillStyle = '#facc15';
+    for (let y = 0; y < 512; y += 48) {
+      ctx.fillRect(248, y, 7, 28);
+      ctx.fillRect(257, y, 7, 28);
     }
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
-    tex.anisotropy = 8;
+    tex.anisotropy = 16;
     return tex;
   }
 

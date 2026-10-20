@@ -2,7 +2,8 @@ import * as THREE from 'three';
 
 /**
  * EnvironmentManager.js
- * Manages lighting, shadows, atmospheric fog, and dynamic Day/Sunset/Night presets.
+ * High-fidelity environment lighting with PMREM procedural reflections (fixing dark metallic materials),
+ * soft PCF shadows, atmospheric sky dome, and realistic daytime lighting.
  */
 export class EnvironmentManager {
   constructor(scene, renderer) {
@@ -22,51 +23,96 @@ export class EnvironmentManager {
   }
 
   init() {
-    // Enable high-quality shadows in renderer
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.25;
 
-    // Atmospheric Fog
-    this.scene.fog = new THREE.FogExp2(0xcce0ff, 0.0018);
+    // Soft atmospheric distance fog
+    this.scene.fog = new THREE.FogExp2(0x93c5fd, 0.0012);
 
-    // Hemispheric Light (sky vs ground bounce)
-    this.hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.7);
+    // Hemispheric Light (bright sky light + warm ground bounce)
+    this.hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x384a32, 1.2);
     this.hemiLight.position.set(0, 200, 0);
     this.scene.add(this.hemiLight);
 
     // Ambient Light
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     this.scene.add(this.ambientLight);
 
-    // Main Directional Sun / Moon
-    this.dirLight = new THREE.DirectionalLight(0xfffaed, 2.2);
-    this.dirLight.position.set(150, 250, 100);
+    // Main Directional Sun
+    this.dirLight = new THREE.DirectionalLight(0xfffaed, 2.8);
+    this.dirLight.position.set(160, 260, 120);
     this.dirLight.castShadow = true;
 
-    // High quality shadow camera setup
     this.dirLight.shadow.mapSize.width = 2048;
     this.dirLight.shadow.mapSize.height = 2048;
     this.dirLight.shadow.camera.near = 0.5;
-    this.dirLight.shadow.camera.far = 800;
+    this.dirLight.shadow.camera.far = 900;
     
-    const d = 120;
+    const d = 140;
     this.dirLight.shadow.camera.left = -d;
     this.dirLight.shadow.camera.right = d;
     this.dirLight.shadow.camera.top = d;
     this.dirLight.shadow.camera.bottom = -d;
-    this.dirLight.shadow.bias = -0.0003;
+    this.dirLight.shadow.bias = -0.0002;
     this.dirLight.shadow.normalBias = 0.02;
 
     this.scene.add(this.dirLight);
 
-    // Sky Dome
+    // Build Sky Dome & Environment Map
     this.buildSkyDome();
     this.buildStarField();
+    this.setupEnvironmentMap();
 
-    // Set default day mode
     this.applyPreset('day');
+  }
+
+  setupEnvironmentMap() {
+    // Generate reflection map for all metallic & physical materials
+    try {
+      const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      pmremGenerator.compileEquirectangularShader();
+
+      const envScene = new THREE.Scene();
+      
+      // Skybox gradient inside envScene
+      const vertexShader = `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `;
+      const fragmentShader = `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec3 dir = normalize(vWorldPosition);
+          vec3 sky = mix(vec3(0.5, 0.75, 1.0), vec3(0.15, 0.45, 0.9), max(dir.y, 0.0));
+          vec3 ground = mix(vec3(0.3, 0.35, 0.3), vec3(0.1, 0.15, 0.1), -min(dir.y, 0.0));
+          vec3 col = dir.y >= 0.0 ? sky : ground;
+          // Sun highlight
+          float sun = max(dot(dir, normalize(vec3(1.0, 1.5, 0.8))), 0.0);
+          col += vec3(1.0, 0.95, 0.8) * pow(sun, 64.0) * 4.0;
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `;
+
+      const sphereGeo = new THREE.SphereGeometry(100, 16, 16);
+      const sphereMat = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        side: THREE.BackSide
+      });
+      const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+      envScene.add(mesh);
+
+      const renderTarget = pmremGenerator.fromScene(envScene);
+      this.scene.environment = renderTarget.texture;
+    } catch (e) {
+      console.warn('Could not generate PMREM envMap:', e);
+    }
   }
 
   buildSkyDome() {
@@ -92,13 +138,13 @@ export class EnvironmentManager {
     `;
 
     this.skyUniforms = {
-      topColor: { value: new THREE.Color(0x3882e8) },
-      bottomColor: { value: new THREE.Color(0xd6e8ff) },
+      topColor: { value: new THREE.Color(0x1d4ed8) },
+      bottomColor: { value: new THREE.Color(0xbae6fd) },
       offset: { value: 33 },
       exponent: { value: 0.6 }
     };
 
-    const skyGeo = new THREE.SphereGeometry(900, 32, 20);
+    const skyGeo = new THREE.SphereGeometry(950, 32, 20);
     const skyMat = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
@@ -124,7 +170,7 @@ export class EnvironmentManager {
       const r = 850;
 
       positions[i] = r * Math.sin(phi) * Math.cos(theta);
-      positions[i + 1] = Math.abs(r * Math.cos(phi)) + 50; // upper hemisphere
+      positions[i + 1] = Math.abs(r * Math.cos(phi)) + 50;
       positions[i + 2] = r * Math.sin(phi) * Math.sin(theta);
     }
 
@@ -142,62 +188,62 @@ export class EnvironmentManager {
 
   applyPreset(presetName) {
     if (presetName === 'day') {
-      this.renderer.toneMappingExposure = 1.05;
-      this.skyUniforms.topColor.value.setHex(0x2370db);
-      this.skyUniforms.bottomColor.value.setHex(0xcfe4fc);
-      this.scene.fog.color.setHex(0xcfe4fc);
-      this.scene.fog.density = 0.0016;
+      this.renderer.toneMappingExposure = 1.28;
+      this.skyUniforms.topColor.value.setHex(0x1d4ed8); // Bright azure blue
+      this.skyUniforms.bottomColor.value.setHex(0xe0f2fe); // Pale sky horizon
+      this.scene.fog.color.setHex(0xbfe0fe);
+      this.scene.fog.density = 0.0010;
 
-      this.dirLight.color.setHex(0xfff8ee);
-      this.dirLight.intensity = 2.4;
-      this.dirLight.position.set(160, 240, 120);
+      this.dirLight.color.setHex(0xfffaed);
+      this.dirLight.intensity = 3.0;
+      this.dirLight.position.set(160, 260, 120);
 
       this.hemiLight.color.setHex(0xffffff);
-      this.hemiLight.groundColor.setHex(0x444444);
-      this.hemiLight.intensity = 0.75;
+      this.hemiLight.groundColor.setHex(0x384a32);
+      this.hemiLight.intensity = 1.2;
 
       this.ambientLight.color.setHex(0xffffff);
-      this.ambientLight.intensity = 0.35;
+      this.ambientLight.intensity = 0.85;
 
       this.stars.material.opacity = 0.0;
     } else if (presetName === 'sunset') {
-      this.renderer.toneMappingExposure = 1.15;
-      this.skyUniforms.topColor.value.setHex(0x30184b);
-      this.skyUniforms.bottomColor.value.setHex(0xff7330);
-      this.scene.fog.color.setHex(0xd4683b);
-      this.scene.fog.density = 0.0022;
+      this.renderer.toneMappingExposure = 1.25;
+      this.skyUniforms.topColor.value.setHex(0x4a154b);
+      this.skyUniforms.bottomColor.value.setHex(0xf97316);
+      this.scene.fog.color.setHex(0xe87a38);
+      this.scene.fog.density = 0.0016;
 
-      this.dirLight.color.setHex(0xff843d);
-      this.dirLight.intensity = 2.8;
-      this.dirLight.position.set(220, 70, 160);
+      this.dirLight.color.setHex(0xffaa5e);
+      this.dirLight.intensity = 3.2;
+      this.dirLight.position.set(220, 80, 160);
 
-      this.hemiLight.color.setHex(0xffa166);
+      this.hemiLight.color.setHex(0xfda4af);
       this.hemiLight.groundColor.setHex(0x381926);
-      this.hemiLight.intensity = 0.65;
+      this.hemiLight.intensity = 0.9;
 
-      this.ambientLight.color.setHex(0xff8844);
-      this.ambientLight.intensity = 0.3;
+      this.ambientLight.color.setHex(0xffa166);
+      this.ambientLight.intensity = 0.6;
 
       this.stars.material.opacity = 0.2;
     } else if (presetName === 'night') {
-      this.renderer.toneMappingExposure = 1.25;
-      this.skyUniforms.topColor.value.setHex(0x040817);
-      this.skyUniforms.bottomColor.value.setHex(0x0c142e);
-      this.scene.fog.color.setHex(0x080f24);
-      this.scene.fog.density = 0.0028;
+      this.renderer.toneMappingExposure = 1.35;
+      this.skyUniforms.topColor.value.setHex(0x060919);
+      this.skyUniforms.bottomColor.value.setHex(0x0f172a);
+      this.scene.fog.color.setHex(0x0d1527);
+      this.scene.fog.density = 0.0022;
 
-      this.dirLight.color.setHex(0x7c9edb);
-      this.dirLight.intensity = 0.6;
+      this.dirLight.color.setHex(0x93c5fd);
+      this.dirLight.intensity = 1.2;
       this.dirLight.position.set(120, 220, 100);
 
-      this.hemiLight.color.setHex(0x1e3357);
-      this.hemiLight.groundColor.setHex(0x0a0f1c);
-      this.hemiLight.intensity = 0.35;
+      this.hemiLight.color.setHex(0x38bdf8);
+      this.hemiLight.groundColor.setHex(0x0f172a);
+      this.hemiLight.intensity = 0.6;
 
-      this.ambientLight.color.setHex(0x192742);
-      this.ambientLight.intensity = 0.25;
+      this.ambientLight.color.setHex(0x334155);
+      this.ambientLight.intensity = 0.55;
 
-      this.stars.material.opacity = 0.9;
+      this.stars.material.opacity = 0.95;
     }
   }
 
@@ -209,7 +255,6 @@ export class EnvironmentManager {
   }
 
   update(focusPosition) {
-    // Keep sun shadow frustum centered around focus target (player car)
     if (focusPosition) {
       this.dirLight.target.position.copy(focusPosition);
       this.dirLight.target.updateMatrixWorld();
@@ -217,12 +262,8 @@ export class EnvironmentManager {
       const offset = this.dirLight.position.clone().sub(this.dirLight.target.position).normalize().multiplyScalar(280);
       this.dirLight.position.copy(focusPosition).add(offset);
       
-      if (this.skyDome) {
-        this.skyDome.position.copy(focusPosition);
-      }
-      if (this.stars) {
-        this.stars.position.copy(focusPosition);
-      }
+      if (this.skyDome) this.skyDome.position.copy(focusPosition);
+      if (this.stars) this.stars.position.copy(focusPosition);
     }
   }
 }

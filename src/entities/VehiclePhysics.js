@@ -10,12 +10,12 @@ export class VehiclePhysics {
   constructor() {
     // Physical specs
     this.mass = 1450;             // kg
-    this.topSpeedKmh = 345;       // km/h top speed
-    this.reverseMaxKmh = 50;
-    this.acceleration = 18.5;     // base acceleration m/s^2
-    this.brakingForce = 34.0;     // m/s^2
-    this.dragCoeff = 0.0012;      // aerodynamic resistance
-    this.rollingResistance = 0.8;
+    this.topSpeedKmh = 350;       // km/h top speed
+    this.reverseMaxKmh = 60;
+    this.acceleration = 42.0;     // Fast, responsive high-speed acceleration
+    this.brakingForce = 48.0;     // Strong responsive braking
+    this.dragCoeff = 0.0009;      // aerodynamic resistance
+    this.rollingResistance = 0.6;
 
     // State variables
     this.position = new THREE.Vector3();
@@ -29,13 +29,13 @@ export class VehiclePhysics {
 
     // Steering
     this.steeringAngle = 0;
-    this.maxSteerAngle = 0.58;    // ~33 degrees at low speed
+    this.maxSteerAngle = 0.65;
 
-    // Drivetrain & Gears
+    // Drivetrain & Gears (High-speed punchy ratios)
     this.gear = 1;
     this.rpm = 900;
-    this.gearRatios = [3.8, 2.6, 1.85, 1.38, 1.05, 0.82]; // 1st to 6th
-    this.gearMaxSpeeds = [65, 115, 165, 220, 280, 350];
+    this.gearRatios = [4.2, 2.8, 1.95, 1.45, 1.12, 0.88]; // 1st to 6th
+    this.gearMaxSpeeds = [80, 140, 195, 250, 305, 365];
     this.isShifting = false;
     this.shiftTimer = 0;
 
@@ -211,8 +211,9 @@ export class VehiclePhysics {
         this.velocity.multiplyScalar(0.7); // speed scrub
       }
 
-      // Stick gently to track height elevation
-      this.position.y += (info.centerPoint.y - this.position.y) * Math.min(1.0, 12.0 * delta);
+      // Firmly plant car to track height elevation so it never floats or flies
+      const targetY = info.centerPoint ? info.centerPoint.y : 0;
+      this.position.y += (targetY - this.position.y) * Math.min(1.0, 25.0 * delta);
     }
 
     // 8. Suspension Roll & Pitch
